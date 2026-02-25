@@ -1,10 +1,10 @@
 # RAE-Suite: The Deterministic Agentic Factory
-## Manifesto and Architecture Specification v1.4 (The Adaptive Iron Protocol)
+## Manifesto and Architecture Specification v1.5 (The Adaptive Iron Protocol)
 
 ### 1. Vision & Core Paradigm
 RAE-Suite is a **Deterministic Operating System for Agentic Engineering**. It transforms the uncertainty of Large Language Models into high-density, auditable, and industrial-grade software artifacts. 
 
-The suite follows the **"Architecture as a Service" (RaaS/CaaS)** model, governed by an **Adaptive Consensus Mechanism** leveraging the **4.x Generation Models**.
+The suite follows the **"Architecture as a Service" (RaaS/CaaS)** model, governed by an **Adaptive Consensus Mechanism** leveraging **Next-Gen GPT-5 and Anthropic 4.x Models**.
 
 ---
 
@@ -13,21 +13,26 @@ RAE-Suite utilizes **Adaptive Consensus (1-to-3 Scaling)**. The number of models
 
 | Layer | Type | Default Models (A / B / C) | Responsibility |
 | :--- | :--- | :--- | :--- |
-| **L1: Working** | Production | **Gemini 2.5 Flash / DeepSeek V3 / Qwen 2.5** | High-speed code generation, unit testing. |
-| **L2: Expert** | Auditing | **Claude Sonnet 4.6 / Gemini 1.5 Pro / GPT-4o** | Structural review, contract generation. |
-| **L3: Supreme** | Final Verdict | **Claude Opus 4.6 / Gemini 2.0 Pro / GPT-o1** | Behavioral symmetry, ISO compliance. |
+| **L1: Working** | Production | **Gemini 2.5 Flash / GPT-5-mini / Claude Haiku 4.5** | High-speed code generation, unit testing. |
+| **L2: Expert** | Auditing | **Claude Sonnet 4.6 / GPT-5.1-codex / o3-mini** | Structural review, contract generation. |
+| **L3: Supreme** | Final Verdict | **Claude Opus 4.6 / GPT-5.2-pro / o1-pro** | Behavioral symmetry, ISO compliance. |
 
 #### Configurability (.env mapping):
 ```bash
-# L2 - Expert Layer (Updated to 4.x)
-RAE_L2_MODEL_A=claude-sonnet-4-6
-RAE_L2_MODEL_B=gemini-1-5-pro
-RAE_L2_MODEL_C=gpt-4o
+# L1 - Working Layer
+RAE_L1_MODEL_A=gemini-2.5-flash
+RAE_L1_MODEL_B=gpt-5-mini
+RAE_L1_MODEL_C=claude-haiku-4-5-20251001
 
-# L3 - Supreme Layer (Updated to 4.x)
+# L2 - Expert Layer
+RAE_L2_MODEL_A=claude-sonnet-4-6
+RAE_L2_MODEL_B=gpt-5.1-codex-max
+RAE_L2_MODEL_C=o3-mini
+
+# L3 - Supreme Layer
 RAE_L3_MODEL_A=claude-opus-4-6
-RAE_L3_MODEL_B=gemini-2-0-pro-exp
-RAE_L3_MODEL_C=gpt-o1
+RAE_L3_MODEL_B=gpt-5.2-pro
+RAE_L3_MODEL_C=o1-pro
 ```
 
 ---
@@ -48,4 +53,4 @@ RAE_L3_MODEL_C=gpt-o1
 
 ---
 *Created on: February 25, 2026*  
-*Standard: RAE-Suite-Adaptive-Iron-Protocol-v1.4*
+*Standard: RAE-Suite-Adaptive-Iron-Protocol-v1.5*
