@@ -1,5 +1,5 @@
 # RAE-Suite: The Deterministic Agentic Factory
-## Manifesto and Architecture Specification v1.6 (The Triple-Balanced Protocol)
+## Manifesto and Architecture Specification v1.7 (The Triple-Balanced Protocol)
 
 ### 1. Vision & Core Paradigm
 RAE-Suite is a **Deterministic Operating System for Agentic Engineering**. It transforms the uncertainty of Large Language Models into high-density, auditable, and industrial-grade software artifacts. 
@@ -14,8 +14,8 @@ Each decision layer is governed by three specialized models from different provi
 | Layer | Type | Model A (Google) | Model B (OpenAI) | Model C (Anthropic) | Responsibility |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **L1: Working** | Production | **Gemini 2.5 Flash** | **GPT-5-mini** | **Claude Haiku 4.5** | Fast code generation & unit tests. |
-| **L2: Expert** | Auditing | **Gemini 2.0 Pro** | **o3-mini** | **Claude Sonnet 4.6** | Semantic logic & contract review. |
-| **L3: Supreme** | Final Verdict | **Gemini 3.1 Pro** | **GPT-5.2-pro** | **Claude Opus 4.6** | Symmetry check, ISO & Safety. |
+| **L2: Expert** | Auditing | **Gemini 1.5 Pro** | **o3-mini** | **Claude Sonnet 4.6** | Semantic logic & contract review. |
+| **L3: Supreme** | Final Verdict | **Gemini 2.0 Pro** | **GPT-5.2-pro** | **Claude Opus 4.6** | Symmetry check, ISO & Safety. |
 
 #### Configurability (.env mapping):
 ```bash
@@ -25,12 +25,12 @@ RAE_L1_MODEL_B=gpt-5-mini
 RAE_L1_MODEL_C=claude-haiku-4-5
 
 # L2 - Expert Layer
-RAE_L2_MODEL_A=gemini-2-0-pro-exp
+RAE_L2_MODEL_A=gemini-1-5-pro
 RAE_L2_MODEL_B=o3-mini
-RAE__L2_MODEL_C=claude-sonnet-4-6
+RAE_L2_MODEL_C=claude-sonnet-4-6
 
 # L3 - Supreme Layer
-RAE_L3_MODEL_A=gemini-3-1-pro
+RAE_L3_MODEL_A=gemini-2-0-pro-exp
 RAE_L3_MODEL_B=gpt-5-2-pro
 RAE_L3_MODEL_C=claude-opus-4-6
 ```
@@ -53,4 +53,4 @@ RAE_L3_MODEL_C=claude-opus-4-6
 
 ---
 *Created on: February 25, 2026*  
-*Standard: RAE-Suite-Balanced-Trinity-v1.6*
+*Standard: RAE-Suite-Balanced-Trinity-v1.7*
