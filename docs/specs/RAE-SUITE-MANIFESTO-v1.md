@@ -19,7 +19,7 @@ RAE-Suite is a **Deterministic Operating System for Agentic Engineering**. It tr
 *   **Responsibility:** Expert guidance for L1 after failure; verification of ISO 27001 compliance.
 
 #### C. L3: Supreme Council (Strategic Governance)
-*   **Models:** Gemini 3 Pro / GPT-5.2 Pro / Claude Opus 4.6.
+*   **Models:** gemini-3-pro-preview / GPT-5.2 Pro / Claude Opus 4.6.
 *   **Tactics:** **Plan & Contract Creation**. L3 defines the "Trinity of Context" and provides final ISO 42001 Audit signatures.
 
 ---
