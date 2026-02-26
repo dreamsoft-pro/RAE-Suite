@@ -1,0 +1,61 @@
+# RAE-Suite Behavioral Contract v2.0
+# Target: OperationService.ts
+# Source: OperationService.js (Legacy AngularJS)
+
+contract_id: "DS-PRO-001-OPERATION-SERVICE"
+status: "draft"
+version: "2.0"
+
+entities:
+  Operation:
+    fields:
+      ID: "string (UUID/Legacy ID)"
+      name: "string"
+      status: "enum (active, inactive, pending)"
+      description: "string (optional)"
+    required: ["ID", "name"]
+
+  Device:
+    fields:
+      ID: "string"
+      name: "string"
+      type: "string"
+
+  Process:
+    fields:
+      ID: "string"
+      name: "string"
+      duration_estimate: "number"
+
+behaviors:
+  getAll:
+    input: "force: boolean"
+    output: "Promise<Operation[]>"
+    constraints:
+      - "MUST implement Request Deduplication (if request is pending, return the same promise)."
+      - "MUST implement optional caching (invalidate if force=true)."
+    iso_27001: "Sanitize response data before returning to frontend."
+
+  getDevices:
+    input: "operation: Operation"
+    output: "Promise<Device[]>"
+    constraints:
+      - "MUST validate operation.ID exists before calling API."
+
+  setDevices:
+    input: "operation: Operation, devices: Device[]"
+    output: "Promise<void>"
+    iso_27001: "Audit log this change via RAE-Core activity logging."
+
+security:
+  standard: "ISO-27001"
+  requirements:
+    - "No leaking of stack traces in error responses."
+    - "Validate all input parameters."
+    - "Use Typed Promises (no 'any')."
+
+testing:
+  mandatory_suites:
+    - "Unit tests for Request Deduplication logic."
+    - "Mock API tests for all CRUD operations."
+    - "Integration test for Graph consistency (Operation-Device link)."
