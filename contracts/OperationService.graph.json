@@ -1,0 +1,23 @@
+{
+  "subgraph_id": "GRAPH-OPS-001",
+  "center_node": "OperationService",
+  "nodes": [
+    { "id": "OperationService", "type": "service", "layer": "frontend-service" },
+    { "id": "api_client", "type": "lib", "layer": "infrastructure" },
+    { "id": "OperationModel", "type": "interface", "layer": "domain" },
+    { "id": "DeviceService", "type": "service", "layer": "frontend-service" },
+    { "id": "ProcessManager", "type": "service", "layer": "frontend-service" },
+    { "id": "/api/operations", "type": "endpoint", "layer": "backend" }
+  ],
+  "edges": [
+    { "source": "OperationService", "target": "api_client", "relation": "uses" },
+    { "source": "OperationService", "target": "OperationModel", "relation": "defines" },
+    { "source": "OperationService", "target": "/api/operations", "relation": "fetches_from" },
+    { "source": "OperationService", "target": "DeviceService", "relation": "dependency_shared_with", "weight": 0.8 },
+    { "source": "OperationService", "target": "ProcessManager", "relation": "dependency_shared_with", "weight": 0.6 }
+  ],
+  "constraints": [
+    "Changes in OperationService signatures must be reflected in Component controllers using this service.",
+    "API endpoint /api/operations follows RESTful conventions."
+  ]
+}
