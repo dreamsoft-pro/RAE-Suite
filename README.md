@@ -15,7 +15,7 @@ RAE-Suite provides two distinct execution modes, executing the same underlying 6
 
 1.  **[RAE-Core (Agnostic Core)](packages/rae-core):** The Institutional Memory ("Silicon Oracle"). Provides vector-deterministic persistence, semantic resonance, and the *Szubar Mode* for emergent induction.
 2.  **[RAE-Hive](packages/rae-hive):** The Worker Swarm. Manages the asynchronous execution of *Writer-Auditor* pairs across distributed compute nodes.
-3.  **[RAE-Phenix](packages/rae-phenix):** The Behavioral Engineer. Defines hard behavioral boundaries, manages ISO compliance, and translates intention into testable YAML contracts.
+3.  **[RAE-Phoenix](packages/rae-phoenix):** The Behavioral Engineer. Defines hard behavioral boundaries, manages ISO compliance, and translates intention into testable YAML contracts.
 
 ## The 6-Stage Production Funnel
 
