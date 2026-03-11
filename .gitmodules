@@ -7,3 +7,9 @@
 [submodule "packages/rae-hive"]
 	path = packages/rae-hive
 	url = https://github.com/dreamsoft-pro/RAE-Hive
+[submodule "packages/rae-quality"]
+	path = packages/rae-quality
+	url = git@github.com:dreamsoft-pro/RAE-Quality.git
+[submodule "packages/rae-lab"]
+	path = packages/rae-lab
+	url = git@github.com:dreamsoft-pro/RAE-Lab.git
