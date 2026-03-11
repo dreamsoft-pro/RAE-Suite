@@ -1,28 +1,31 @@
-# RAE-Suite v4.3: Global Inżynierski Sztab AI 🚀
+# RAE-Suite v4.3: Global AI Engineering Factory 🚀
 
-RAE-Suite to zintegrowane środowisko orkiestracji inteligentnych agentów inżynieryjnych. System działa jako "Autonomiczna Fabryka", która projektuje, tworzy, testuje i monitoruje oprogramowanie klasy Enterprise (np. ScreenWatcher, Billboard Marker).
+RAE-Suite is an integrated orchestration environment for intelligent engineering agents. The system operates as an "Autonomous Factory" that designs, develops, tests, and monitors Enterprise-grade software.
 
-## 🏗️ Architektura Fabryki (Quantum Ready)
+## 🏗️ Factory Architecture (Quantum Ready)
 
-System składa się z 5 wyspecjalizowanych modułów połączonych w jedną sieć neuronową:
+The system consists of 5 specialized modules connected into a single neural network:
 
-1.  **[RAE-agentic-memory](packages/rae-core)**: Centralny Mózg i Pamięć Kwantowa. Zarządza wiedzą semantyczną i refleksją.
-2.  **[RAE-Phoenix](packages/rae-phoenix)**: Główny Architekt i Deweloper. Generuje kod i planuje refaktoryzację.
-3.  **[RAE-Hive](packages/rae-hive)**: Warstwa Wykonawcza (Ręce). Uruchamia skrypty, kontenery i wykonuje audyty wizualne (Playwright).
-4.  **[RAE-Quality](packages/rae-quality)**: Autonomiczny Strażnik Jakości. Wykonuje ciągłe testy bezpieczeństwa (SAST) i weryfikuje pokrycie kodu.
-5.  **[RAE-Lab](packages/rae-lab)**: Centrum Badawcze. Analizuje wyniki eksperymentów i wdraża strategię Kaizen (ciągłe doskonalenie).
+1.  **[RAE-agentic-memory](packages/rae-core)**: The Quantum Intelligence Core. Manages semantic knowledge, ontology, and advanced reflection.
+2.  **[RAE-Phoenix](packages/rae-phoenix)**: Lead Architect and Developer. Generates code, manages refactoring, and performs deep repository analysis.
+3.  **[RAE-Hive](packages/rae-hive)**: Execution Layer (The Hands). Runs scripts, manages Docker infrastructure, and performs visual validation via Playwright.
+4.  **[RAE-Quality](packages/rae-quality)**: Autonomous Quality Guard. Performs continuous security auditing (SAST), vulnerability scanning, and ensures high test coverage.
+5.  **[RAE-Lab](packages/rae-lab)**: Intelligence Observatory. Aggregates metrics from all agents to drive Kaizen (Continuous Improvement) and Lean strategies.
 
-## 🛡️ Standardy i Bezpieczeństwo
-*   **ISO 27001 Compliance**: Pełna separacja zasobów i audytowalność każdej akcji agenta.
-*   **Hard Frames 2.1**: Rygorystyczne ramy kontraktowe zapobiegające halucynacjom AI.
-*   **Telemetria**: Pełne pokrycie metrykami operacyjnymi wyświetlanymi w centralnej Grafanie.
+## 🛡️ Standards & Security
+*   **ISO 27001 Compliance**: Full separation of duties and total auditability of agent actions.
+*   **Hard Frames 2.1**: Contractual enforcement to ensure reliable and non-hallucinatory AI outputs.
+*   **Telemetria & Observability**: Real-time operational data integrated with Grafana.
 
-## 🚀 Szybki Start
+## 🚀 Quick Start
 ```bash
-# Uruchomienie całej Fabryki
+# Clone with submodules
+git clone --recursive git@github.com:dreamsoft-pro/RAE-Suite.git
+
+# Launch the entire Factory
 docker compose -f docker-compose.suite.yml up -d
 ```
 
 ---
 **Lead Engineer**: Grzegorz Leśniowski (@vproject111)
-**Vision**: Continuous Engineering through Autonomous Reflexive Agents.
+**Vision**: Autonomous Industrial Engineering through Reflective Multi-Agent Swarms.
