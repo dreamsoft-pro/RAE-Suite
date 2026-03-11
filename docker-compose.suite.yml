@@ -1,0 +1,32 @@
+# RAE-Suite Global Orchestrator (v4.4) - STABLE
+services:
+  # Uzywamy istniejacego, stabilnego kontenera API
+  rae-api-dev:
+    image: rae-memory:latest
+    container_name: rae-api-dev
+    restart: unless-stopped
+    ports:
+      - "8001:8000"
+    environment:
+      - PYTHONPATH=/app:/app/rae_core
+      - POSTGRES_HOST=rae-postgres
+      - QDRANT_HOST=rae-qdrant
+    volumes:
+      - ../RAE-agentic-memory/rae-core/rae_core:/app/rae_core
+      - ../RAE-agentic-memory/apps:/app/apps
+    networks:
+      - rae-internal
+
+  rae-lab:
+    build: ../RAE-Lab
+    container_name: rae-lab
+    restart: unless-stopped
+    environment:
+      - RAE_API_URL=http://rae-api-dev:8000
+    networks:
+      - rae-internal
+
+networks:
+  rae-internal:
+    external: true
+    name: rae-internal
