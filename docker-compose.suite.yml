@@ -1,19 +1,45 @@
-# RAE-Suite Global Orchestrator (v4.4) - STABLE
+# RAE-Suite Factory Modules (v4.7) - SERVICE MODE
 services:
-  # Uzywamy istniejacego, stabilnego kontenera API
-  rae-api-dev:
-    image: rae-memory:latest
-    container_name: rae-api-dev
+  rae-hive:
+    build: ../RAE-Hive
+    container_name: rae-hive
+    command: python hive_engine.py
     restart: unless-stopped
-    ports:
-      - "8001:8000"
     environment:
-      - PYTHONPATH=/app:/app/rae_core
-      - POSTGRES_HOST=rae-postgres
-      - QDRANT_HOST=rae-qdrant
+      - RAE_API_URL=http://rae-api-dev:8000
     volumes:
+      - ../RAE-Hive:/app
+      - ../RAE-Lab/experiments:/app/experiments
       - ../RAE-agentic-memory/rae-core/rae_core:/app/rae_core
-      - ../RAE-agentic-memory/apps:/app/apps
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - rae-internal
+
+  rae-phoenix:
+    build: ../RAE-Phoenix
+    container_name: rae-phoenix
+    command: python main.py
+    restart: unless-stopped
+    environment:
+      - RAE_API_URL=http://rae-api-dev:8000
+    volumes:
+      - ../RAE-Phoenix:/app
+      - ../RAE-Lab/experiments:/app/experiments
+      - ../RAE-agentic-memory/rae-core/rae_core:/app/rae_core
+    networks:
+      - rae-internal
+
+  rae-quality:
+    build: ../RAE-Quality
+    container_name: rae-quality
+    restart: unless-stopped
+    command: python main.py
+    environment:
+      - RAE_API_URL=http://rae-api-dev:8000
+    volumes:
+      - ../RAE-Quality:/app
+      - ../RAE-agentic-memory/rae-core/rae_core:/app/rae_core
+      - /home/print/cloud:/projects:ro
     networks:
       - rae-internal
 
@@ -21,8 +47,13 @@ services:
     build: ../RAE-Lab
     container_name: rae-lab
     restart: unless-stopped
+    command: python metrics_aggregator.py
     environment:
       - RAE_API_URL=http://rae-api-dev:8000
+    volumes:
+      - ../RAE-Lab:/app
+      - ../RAE-Lab/experiments:/app/experiments
+      - ../RAE-agentic-memory/rae-core/rae_core:/app/rae_core
     networks:
       - rae-internal
 
