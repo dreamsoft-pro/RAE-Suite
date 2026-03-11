@@ -1,4 +1,4 @@
-# RAE-Suite Factory Modules (v4.7) - SERVICE MODE
+# RAE-Suite Factory Modules (v4.8) - SERVICE MODE WITH HEALTHCHECKS
 services:
   rae-hive:
     build: ../RAE-Hive
@@ -12,6 +12,11 @@ services:
       - ../RAE-Lab/experiments:/app/experiments
       - ../RAE-agentic-memory/rae-core/rae_core:/app/rae_core
       - /var/run/docker.sock:/var/run/docker.sock
+    healthcheck:
+      test: ["CMD-SHELL", "python3 -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health')\""]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     networks:
       - rae-internal
 
@@ -26,6 +31,11 @@ services:
       - ../RAE-Phoenix:/app
       - ../RAE-Lab/experiments:/app/experiments
       - ../RAE-agentic-memory/rae-core/rae_core:/app/rae_core
+    healthcheck:
+      test: ["CMD-SHELL", "python3 -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health')\""]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     networks:
       - rae-internal
 
@@ -40,6 +50,11 @@ services:
       - ../RAE-Quality:/app
       - ../RAE-agentic-memory/rae-core/rae_core:/app/rae_core
       - /home/print/cloud:/projects:ro
+    healthcheck:
+      test: ["CMD-SHELL", "python3 -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health')\""]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     networks:
       - rae-internal
 
@@ -54,6 +69,11 @@ services:
       - ../RAE-Lab:/app
       - ../RAE-Lab/experiments:/app/experiments
       - ../RAE-agentic-memory/rae-core/rae_core:/app/rae_core
+    healthcheck:
+      test: ["CMD-SHELL", "python3 -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health')\""]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     networks:
       - rae-internal
 
