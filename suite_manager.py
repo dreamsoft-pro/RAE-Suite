@@ -4,7 +4,7 @@ import os
 
 # Wyznaczamy ścieżkę do RAE-agentic-memory dynamicznie
 current_dir = os.path.dirname(os.path.abspath(__file__))
-memory_core_path = os.path.abspath(os.path.join(current_dir, "../RAE-agentic-memory/rae-core"))
+memory_core_path = os.path.abspath(os.path.join(current_dir, "./packages/rae-agentic-memory/rae-core"))
 sys.path.append(memory_core_path)
 
 from rae_core.utils.enterprise_guard import RAE_Enterprise_Foundation, audited_operation
