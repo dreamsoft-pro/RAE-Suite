@@ -1,14 +1,14 @@
 # RAE-Suite Factory Modules (v4.8) - SERVICE MODE WITH HEALTHCHECKS
 services:
   rae-hive:
-    build: ../RAE-Hive
+    build: ../RAE-Hive_eyes
     container_name: rae-hive
     command: python hive_engine.py
     restart: unless-stopped
     environment:
       - RAE_API_URL=http://rae-api-dev:8000
     volumes:
-      - ../RAE-Hive:/app
+      - ../RAE-Hive_eyes:/app
       - ../RAE-Lab/experiments:/app/experiments
       - ../RAE-agentic-memory/rae-core/rae_core:/app/rae_core
       - /var/run/docker.sock:/var/run/docker.sock
