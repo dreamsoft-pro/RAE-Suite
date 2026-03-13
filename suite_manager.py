@@ -2,8 +2,10 @@
 import sys
 import os
 
-# Dodajemy rae_core do path (Suite leży w cloud/RAE-Suite, core w cloud/RAE-agentic-memory)
-sys.path.append("/home/print/cloud/RAE-agentic-memory/rae-core")
+# Wyznaczamy ścieżkę do RAE-agentic-memory dynamicznie
+current_dir = os.path.dirname(os.path.abspath(__file__))
+memory_core_path = os.path.abspath(os.path.join(current_dir, "../RAE-agentic-memory/rae-core"))
+sys.path.append(memory_core_path)
 
 from rae_core.utils.enterprise_guard import RAE_Enterprise_Foundation, audited_operation
 
