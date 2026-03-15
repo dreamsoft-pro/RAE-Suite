@@ -1,12 +1,11 @@
-# RAE-Suite Master Orchestrator (v5.0)
-# One command to rule them all: docker compose up -d
-
+# RAE-Suite Master Orchestrator (v5.2)
 include:
   - path: ../RAE-agentic-memory/docker-compose.yml
   - path: ../RAE-Hive_eyes/docker-compose.yml
   - path: ../RAE-Quality/docker-compose.yml
   - path: ../RAE-Lab/docker-compose.yml
   - path: ../RAE-Phoenix/docker-compose.yml
+  - path: ./packages/rae-open-claw/docker-compose.yml
 
 networks:
   rae-internal:
@@ -14,7 +13,6 @@ networks:
     driver: bridge
 
 volumes:
-  # Zapewnienie ciągłości danych dla wszystkich inkludowanych plików
   rae-agentic-memory_postgres_data:
     external: true
   rae-agentic-memory_redis_data:
