@@ -6,6 +6,26 @@ include:
   - path: ../RAE-Lab/docker-compose.yml
   - path: ../RAE-Phoenix/docker-compose.yml
   - path: ./packages/rae-open-claw/docker-compose.yml
+  - path: ./packages/rae-open-claw/docker-compose.secure.yml
+
+services:
+  rae-suite:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: rae-suite
+    restart: unless-stopped
+    command: python main.py
+    ports:
+      - "8009:8009"
+    environment:
+      - RAE_API_URL=http://rae-api-dev:8000
+      - PYTHONPATH=/app:/app/packages/rae-agentic-memory/rae-core
+    volumes:
+      - .:/app
+      - ../RAE-agentic-memory/rae-core/rae_core:/app/rae_core
+    networks:
+      - rae-internal
 
 networks:
   rae-internal:
