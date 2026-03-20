@@ -1,0 +1,21 @@
+services:
+  openclaw-gateway-secure:
+    image: rae-open-claw-openclaw-gateway-secure
+    container_name: openclaw-gateway-secure
+    restart: unless-stopped
+    command: ["node", "dist/index.js", "gateway", "--bind", "lan", "--port", "18789", "--allow-unconfigured"]
+    environment:
+      - RAE_API_URL=http://rae-api-dev:8000
+      - RAE_TENANT_ID=53717286-fe94-4c8f-baf9-c4d2758eb672
+      - RAE_PROJECT_NAME=dreamsoft_factory
+    volumes:
+      - .:/app
+      - /mnt/extra_storage/dreamsoft_factory:/workspace
+      - /home/grzegorz-lesniowski/.openclaw:/home/node/.openclaw
+    networks:
+      - rae-internal
+
+networks:
+  rae-internal:
+    external: true
+    name: rae-internal
