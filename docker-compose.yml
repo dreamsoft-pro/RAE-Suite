@@ -5,8 +5,8 @@ include:
   - path: ../RAE-Quality/docker-compose.yml
   - path: ../RAE-Lab/docker-compose.yml
   - path: ../RAE-Phoenix/docker-compose.yml
-  - path: ./packages/rae-open-claw/docker-compose.yml
-  - path: ./packages/rae-open-claw/docker-compose.secure.yml
+#  - path: ./packages/rae-open-claw/docker-compose.yml
+#  - path: ./packages/rae-open-claw/docker-compose.secure.yml
 
 services:
   rae-suite:
@@ -15,7 +15,7 @@ services:
       dockerfile: Dockerfile
     container_name: rae-suite
     restart: unless-stopped
-    command: python main.py
+    command: uvicorn main:app --host 0.0.0.0 --port 8009 --reload
     ports:
       - "8009:8009"
     environment:
