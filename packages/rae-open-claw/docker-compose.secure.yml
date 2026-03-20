@@ -3,15 +3,27 @@ services:
     image: rae-open-claw-openclaw-gateway-secure
     container_name: openclaw-gateway-secure
     restart: unless-stopped
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
     command: ["node", "dist/index.js", "gateway", "--bind", "lan", "--port", "18789", "--allow-unconfigured"]
     environment:
       - RAE_API_URL=http://rae-api-dev:8000
       - RAE_TENANT_ID=53717286-fe94-4c8f-baf9-c4d2758eb672
       - RAE_PROJECT_NAME=dreamsoft_factory
+      - NODE_ENV=production
     volumes:
-      - .:/app
-      - /mnt/extra_storage/dreamsoft_factory:/workspace
-      - /home/grzegorz-lesniowski/.openclaw:/home/node/.openclaw
+      # Phase 2: Core code is Read-Only
+      - .:/app:ro
+      # External workspace for logs and data is Read-Write, but isolated
+      - /mnt/extra_storage/dreamsoft_factory:/workspace:rw
+      # Configuration is Read-Write only for specific subdirs if needed, 
+      # but here we mount the whole .openclaw dir as RW to allow session saves.
+      - /home/grzegorz-lesniowski/.openclaw:/home/node/.openclaw:rw
+      # Ephemeral folders for Node.js
+      - /tmp:/tmp:rw
     networks:
       - rae-internal
 
