@@ -6,30 +6,41 @@ import structlog
 from datetime import datetime
 from typing import Dict, Any, List
 
+from rae_libs.rae_core.utils.memory_bridge import RAEMemoryBridge
+
 logger = structlog.get_logger(__name__)
 
 class RAE_CEO_Orchestrator:
-    """The Intelligent Brain of the RAE Suite. Operates as a CEO Agent (Observe-Plan-Dispatch)."""
+    """The Intelligent Brain of the RAE Suite (Unified Audit Edition)."""
     
     def __init__(self):
         self.api_url = os.getenv("RAE_API_URL", "http://rae-api-dev:8000")
-        self.orchestration_interval = int(os.getenv("ORCHESTRATION_TICK", "120")) # 2 mins
+        self.orchestration_interval = int(os.getenv("ORCHESTRATION_TICK", "120"))
         self.last_action_time = None
+        # Unified Bridge
+        self.bridge = RAEMemoryBridge(project_name="rae-suite-ceo")
 
     async def run_loop(self):
-        logger.info("orchestrator_booted", role="CEO_Agent", mode="Autonomous")
+        logger.info("orchestrator_booted", role="CEO_Agent")
+        self.bridge.save_event("Orkiestrator CEO został uruchomiony i przechodzi w tryb nadzoru.", layer="episodic")
         
         while True:
             try:
-                # 1. OBSERVE: Fetch System State
+                # 1. OBSERVE
                 state = await self._observe_system_state()
-                logger.info("observing_factory_state", state_summary=state["summary"])
                 
-                # 2. PLAN & DECIDE: Ask LLM for next priority
+                # 2. PLAN & DECIDE
                 decision = await self._decide_next_action(state)
                 
-                # 3. DISPATCH: Execute decision via A2A Bridge
+                # [ISO 27001] Unified Audit of Strategic Decision
                 if decision.get("intent") != "IDLE":
+                    self.bridge.log_decision(
+                        action="strategy_selected",
+                        reasoning=decision.get("reasoning", "No reasoning provided."),
+                        payload={"target_agent": decision.get("agent"), "state_snapshot": state["summary"]}
+                    )
+                    
+                    # 3. DISPATCH
                     await self._dispatch_action(decision)
                     self.last_action_time = datetime.utcnow()
                 else:

@@ -1,15 +1,18 @@
----
-name: rae-bridge
-description: Chief Orchestrator Bridge for RAE Suite. Controls Phoenix, Quality, Lab, and Hive. Use when needing to delegate code tasks, request audits, run tests, or perform Phase 3 Semantic audits.
----
+# RAE OpenClaw - Bridge Skill (Hard Contract)
+# This file is a marker for OpenClaw to index the mandatory RAE tools.
 
-# RAE Bridge
+Skill: RAE-Suite-Bridge (Governance)
+--------------------------------------
+Constraint: NO_DIRECT_WRITE
+All changes to the codebase MUST be performed via the 'trigger_refactoring' or 'assign_coding_task' tools.
+Direct filesystem manipulation (e.g., using fs.writeFile) on project files is strictly forbidden by the RAE Protocol.
 
-This skill integrates OpenClaw with the RAE (Reflective Agentic Engine) Suite.
+Mandatory Tools (mapped to RAE Bridge API):
+1. run_quality_audit(code, project_id) -> MUST be called before any proposed change.
+2. store_verified_memory(content, project_id) -> Persists knowledge into RAE Semantic Layer.
+3. trigger_phoenix_fix(project_id, code, reason) -> Escalates repair to RAE-Phoenix.
 
-## Available Tools
-
-1. **rae_bridge_audit** - Performs a Phase 3 Semantic Audit.
-2. **rae_bridge_interact** - Generic A2A message to any RAE Agent.
-3. **rae_phoenix_refactor** - Delegates code refactoring to Phoenix.
-4. **rae_quality_audit** - Requests code quality and security audits.
+Security Policy:
+- X-Tenant-Id: default-tenant
+- X-Project-Id: [Target Project]
+- Enforcement: Quality Tribunal Tier 3 (Supreme Court)
