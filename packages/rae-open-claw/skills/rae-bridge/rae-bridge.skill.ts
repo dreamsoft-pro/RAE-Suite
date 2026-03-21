@@ -1,70 +1,49 @@
 import { DefineSkill } from '@mariozechner/pi-agent-core';
 
-/**
- * Native RAE Bridge Skill for OpenClaw.
- * Implements Phase 3 Hard Frames (Semantic Firewall) and A2A Interaction.
- */
 export default DefineSkill({
   name: 'rae-bridge',
-  description: 'Enterprise Bridge for RAE Suite. Handles Phase 3 Audit and A2A Communication.',
+  description: 'Chief Orchestrator Bridge with Gemini Support. Analyzes RAE Modules with deep reasoning.',
   
   tools: {
     rae_bridge_audit: {
-      description: 'Performs a Phase 3 Semantic Audit on a prompt before execution. Required for Hard Frames compliance.',
-      inputSchema: {
-        type: 'object',
-        properties: {
-          prompt: { type: 'string', description: 'The text prompt to audit' },
-          context: { type: 'string', description: 'Operational context (e.g. project name)' }
-        },
-        required: ['prompt']
-      },
-      async run({ prompt, context }) {
+      description: 'Phase 3 Semantic Audit.',
+      inputSchema: { type: 'object', properties: { prompt: { type: 'string' } }, required: ['prompt'] },
+      async run({ prompt }) {
         const raeUrl = process.env.RAE_API_URL || 'http://rae-api-dev:8000';
-        try {
-          const response = await fetch(`${raeUrl}/v2/bridge/audit`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ prompt, context, source_agent: 'open-claw' })
-          });
-          
-          if (!response.ok) {
-            const error = await response.json();
-            throw new Error(`Semantic Firewall Blocked: ${error.detail || 'Unknown reason'}`);
-          }
-          
-          return await response.json();
-        } catch (e) {
-          return { status: 'rejected', reason: e.message };
-        }
+        const response = await fetch(`${raeUrl}/v2/bridge/audit`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt, source_agent: 'open-claw' })
+        });
+        return await response.json();
       }
     },
     
-    rae_bridge_interact: {
-      description: 'Sends an A2A message to another RAE Agent through the Bridge.',
+    rae_gemini_analyze: {
+      description: 'Deep code analysis using Gemini Pro. Use for understanding complex RAE logic.',
       inputSchema: {
         type: 'object',
         properties: {
-          target_agent: { type: 'string', description: 'Destination agent (e.g. rae-quality, rae-phoenix)' },
-          payload: { type: 'object', description: 'JSON data to send' },
-          session_id: { type: 'string' }
+          code: { type: 'string' },
+          module_name: { type: 'string' },
+          tenant_id: { type: 'string' }
         },
-        required: ['target_agent', 'payload']
+        required: ['code', 'module_name', 'tenant_id']
       },
-      async run({ target_agent, payload, session_id }) {
+      async run({ code, module_name, tenant_id }) {
         const raeUrl = process.env.RAE_API_URL || 'http://rae-api-dev:8000';
         const response = await fetch(`${raeUrl}/v2/bridge/interact`, {
           method: 'POST',
           headers: { 
             'Content-Type': 'application/json',
-            'X-Tenant-Id': '00000000-0000-0000-0000-000000000000',
-            'X-Project-Id': 'dreamsoft_factory'
+            'X-Tenant-Id': tenant_id,
+            'X-Project-Id': 'RAE-Deep-Audit'
           },
           body: JSON.stringify({
-            payload,
+            intent: 'GEMINI_ANALYZE',
             source_agent: 'open-claw',
-            target_agent,
-            session_id
+            target_agent: 'rae-oracle-gemini',
+            payload: { module_name, code_snippet: code.substring(0, 10000) }
           })
         });
         return await response.json();

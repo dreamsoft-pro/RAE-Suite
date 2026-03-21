@@ -15,8 +15,11 @@ services:
       - RAE_PROJECT_NAME=dreamsoft_factory
       - NODE_ENV=production
     volumes:
+      - /home/grzegorz-lesniowski/cloud:/projects:ro
+      - /home/grzegorz-lesniowski/.openclaw/workspace/docs:/workspace/docs:rw
       # Phase 2: Core code is Read-Only
       - .:/app:ro
+      - ../../AI_AGENT_MANIFEST.json:/workspace/AI_AGENT_MANIFEST.json:ro
       # External workspace for logs and data is Read-Write, but isolated
       - /mnt/extra_storage/dreamsoft_factory:/workspace:rw
       # Configuration is Read-Write only for specific subdirs if needed, 

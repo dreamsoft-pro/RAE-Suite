@@ -13,11 +13,13 @@ HEADERS = {'X-API-Key': 'test-key', 'X-Tenant-Id': '00000000-0000-0000-0000-0000
 WORK_DIR = '/app/agent_hive/work_dir/components/'
 COMPOSE_DIR = '/app/agent_hive/'
 
-# SMTP Configuration (Verified Credentials)
-SMTP_SERVER = "smtp.gmail.com"
-SMTP_PORT = 587
-SMTP_USER = "vproject.111@gmail.com" 
-SMTP_PASS = "mwzmjsunp"
+import os
+
+# SMTP Configuration (Injected via Environment Variables)
+SMTP_SERVER = os.getenv("RAE_SMTP_SERVER", "smtp.gmail.com")
+SMTP_PORT = int(os.getenv("RAE_SMTP_PORT", "587"))
+SMTP_USER = os.getenv("RAE_SMTP_USER")
+SMTP_PASS = os.getenv("RAE_SMTP_PASS")
 REPORT_EMAIL = "vproject.111@gmail.com"
 
 def log_to_rae(msg, tags=[]):

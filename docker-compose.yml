@@ -1,12 +1,10 @@
-# RAE-Suite Master Orchestrator (v5.2)
+# RAE-Suite Master Orchestrator - STANDARD
 include:
   - path: ../RAE-agentic-memory/docker-compose.yml
   - path: ../RAE-Hive_eyes/docker-compose.yml
   - path: ../RAE-Quality/docker-compose.yml
   - path: ../RAE-Lab/docker-compose.yml
   - path: ../RAE-Phoenix/docker-compose.yml
-#  - path: ./packages/rae-open-claw/docker-compose.yml
-#  - path: ./packages/rae-open-claw/docker-compose.secure.yml
 
 services:
   rae-suite:
@@ -15,15 +13,12 @@ services:
       dockerfile: Dockerfile
     container_name: rae-suite
     restart: unless-stopped
-    command: uvicorn main:app --host 0.0.0.0 --port 8009 --reload
+    command: uvicorn main:app --host 0.0.0.0 --port 8009
     ports:
       - "8009:8009"
     environment:
       - RAE_API_URL=http://rae-api-dev:8000
       - PYTHONPATH=/app:/app/packages/rae-agentic-memory/rae-core
-    volumes:
-      - .:/app
-      - ../RAE-agentic-memory/rae-core/rae_core:/app/rae_core
     networks:
       - rae-internal
 

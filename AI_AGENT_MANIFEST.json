@@ -1,0 +1,41 @@
+{
+  "manifest_version": "1.0",
+  "system": "RAE Silicon Oracle",
+  "modules": [
+    {
+      "id": "rae-quality",
+      "role": "Auditor",
+      "capabilities": ["SAST", "Coverage Analysis", "Security Audit"],
+      "a2a_endpoint": "http://rae-quality:8000/v2/bridge/interact",
+      "info_class": "INTERNAL"
+    },
+    {
+      "id": "rae-phoenix",
+      "role": "Architect",
+      "capabilities": ["Code Generation", "Refactoring", "Design"],
+      "a2a_endpoint": "http://rae-phoenix:8000/v2/bridge/interact",
+      "info_class": "RESTRICTED"
+    },
+    {
+      "id": "rae-lab",
+      "role": "Scientist",
+      "capabilities": ["Test Execution", "Metrics Aggregation", "Benchmarking"],
+      "a2a_endpoint": "http://rae-lab:8000/v2/bridge/interact",
+      "info_class": "PUBLIC"
+    },
+    {
+      "id": "rae-hive",
+      "role": "Swarm Orchestrator",
+      "capabilities": ["Multi-Agent Execution", "Atomic Slicing", "File Operations"],
+      "a2a_endpoint": "http://rae-hive:8000/v2/bridge/interact",
+      "info_class": "RESTRICTED"
+    },
+    {
+      "id": "rae-oracle",
+      "role": "Cognitive Brain (Claude)",
+      "capabilities": ["Strategic Planning", "Complex Reasoning", "Cross-Module Orchestration"],
+      "a2a_endpoint": "http://rae-api-dev:8000/v2/bridge/audit",
+      "info_class": "RESTRICTED"
+    }
+  ]
+}

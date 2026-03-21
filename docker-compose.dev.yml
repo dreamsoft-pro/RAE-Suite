@@ -1,0 +1,17 @@
+# RAE-Suite Master Orchestrator - DEV HOTRELOAD
+include:
+  - path: ../RAE-agentic-memory/docker-compose.dev.yml
+  - path: ../RAE-Hive_eyes/docker-compose.dev.yml
+  - path: ../RAE-Quality/docker-compose.dev.yml
+  - path: ../RAE-Lab/docker-compose.dev.yml
+  - path: ../RAE-Phoenix/docker-compose.dev.yml
+  - path: ./packages/rae-open-claw/docker-compose.secure.yml
+
+services:
+  rae-suite:
+    command: uvicorn main:app --host 0.0.0.0 --port 8009 --reload
+    environment:
+      - RAE_PROFILE=dev
+    volumes:
+      - .:/app
+      - ../RAE-agentic-memory/rae-core/rae_core:/app/rae_core
