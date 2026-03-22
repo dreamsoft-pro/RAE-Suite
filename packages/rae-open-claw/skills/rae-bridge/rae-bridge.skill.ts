@@ -1,53 +1,38 @@
-import { DefineSkill } from '@mariozechner/pi-agent-core';
+import { Tool } from '@google/gemini-cli'; // Symulacja interfejsu narzędzi OpenClaw
+import axios from 'axios';
 
-export default DefineSkill({
-  name: 'rae-bridge',
-  description: 'Chief Orchestrator Bridge with Gemini Support. Analyzes RAE Modules with deep reasoning.',
-  
-  tools: {
-    rae_bridge_audit: {
-      description: 'Phase 3 Semantic Audit.',
-      inputSchema: { type: 'object', properties: { prompt: { type: 'string' } }, required: ['prompt'] },
-      async run({ prompt }) {
-        const raeUrl = process.env.RAE_API_URL || 'http://rae-api-dev:8000';
-        const response = await fetch(`${raeUrl}/v2/bridge/audit`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt, source_agent: 'open-claw' })
-        });
-        return await response.json();
-      }
-    },
-    
-    rae_gemini_analyze: {
-      description: 'Deep code analysis using Gemini Pro. Use for understanding complex RAE logic.',
-      inputSchema: {
-        type: 'object',
-        properties: {
-          code: { type: 'string' },
-          module_name: { type: 'string' },
-          tenant_id: { type: 'string' }
-        },
-        required: ['code', 'module_name', 'tenant_id']
-      },
-      async run({ code, module_name, tenant_id }) {
-        const raeUrl = process.env.RAE_API_URL || 'http://rae-api-dev:8000';
-        const response = await fetch(`${raeUrl}/v2/bridge/interact`, {
-          method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            'X-Tenant-Id': tenant_id,
-            'X-Project-Id': 'RAE-Deep-Audit'
-          },
-          body: JSON.stringify({
-            intent: 'GEMINI_ANALYZE',
-            source_agent: 'open-claw',
-            target_agent: 'rae-oracle-gemini',
-            payload: { module_name, code_snippet: code.substring(0, 10000) }
-          })
-        });
-        return await response.json();
-      }
-    }
+/**
+ * Silicon Oracle v3.2: Unified Bridge for OpenClaw (Special Forces).
+ * Enforces NO_DIRECT_WRITE and Mandatory Auditing.
+ */
+const RAE_API_URL = process.env.RAE_API_URL || 'http://rae-api-dev:8000';
+
+export const rae_quality_audit = {
+  name: 'run_quality_audit',
+  description: 'Audytuje kod przed zapisem. Werdykt Advanced Senior jest wymagany.',
+  execute: async ({ code, project_id }: { code: string, project_id: string }) => {
+    // 1. Log Decision to RAE Memory (Audit Trail)
+    await axios.post(`${RAE_API_URL}/v2/memories`, {
+      content: `OpenClaw żąda audytu dla projektu ${project_id}`,
+      human_label: `[OPENCLAW] Request: Quality Audit (${project_id})`,
+      layer: 'reflective',
+      project: project_id,
+      metadata: { audit_type: 'iso_27001_compliance', action: 'audit_requested', agent: 'openclaw' }
+    });
+
+    // 2. Physical Call to Quality Tribunal
+    const resp = await axios.post(`${RAE_API_URL}/v2/quality/audit`, { code, project_id, importance: 'medium' });
+    return resp.data;
   }
-});
+};
+
+export const rae_phoenix_fix = {
+  name: 'trigger_phoenix_fix',
+  description: 'Eskaluje naprawę kodu do modułu Phoenix.',
+  execute: async ({ project_id, code, reason, file_path }: any) => {
+    const resp = await axios.post(`${RAE_API_URL}/v2/phoenix/repair`, { project_id, code, reason, file_path });
+    return resp.data;
+  }
+};
+
+// MANDATE: OpenClaw tools are now strictly routed through these proxies.
