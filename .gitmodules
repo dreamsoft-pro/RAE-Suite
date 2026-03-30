@@ -11,6 +11,10 @@
 [submodule "packages/rae-quality"]
 	path = packages/rae-quality
 	url = git@github.com:dreamsoft-pro/RAE-Quality.git
+	branch = main
 [submodule "packages/rae-lab"]
 	path = packages/rae-lab
 	url = git@github.com:dreamsoft-pro/RAE-Lab.git
+	branch = main
+[submodule "packages/rae-agentic-memory"]
+	branch = main

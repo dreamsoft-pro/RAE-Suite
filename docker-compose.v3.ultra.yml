@@ -4,7 +4,7 @@ services:
   rae-core:
     build:
       context: ../RAE-core
-      dockerfile: pyproject.toml # RAE-core jest pakietem, nie usługą, ale spójność wymaga jego obecności w kontekście
+      dockerfile: pyproject.toml
     image: rae-core:v1.1.0
     restart: "no"
 
@@ -17,6 +17,31 @@ services:
       - "8000:8000"
     environment:
       - RAE_API_URL=http://localhost:8000
+      - POSTGRES_DB=rae_memory
+      - POSTGRES_USER=operator
+      - POSTGRES_PASSWORD=(2ITj|xB.?%1~CeA>dCT{RJ`6rM2Q{E9WwjR9%lk
+    volumes:
+      - rae-memory-db-data:/var/lib/postgresql/data
+    networks:
+      - rae-internal
+
+  rae-redis:
+    image: redis:7-alpine
+    container_name: rae-redis-v3
+    ports:
+      - "6379:6379"
+    volumes:
+      - rae-redis-cache-data:/data
+    networks:
+      - rae-internal
+
+  rae-qdrant:
+    image: qdrant/qdrant:latest
+    container_name: rae-qdrant-v3
+    ports:
+      - "6333:6333"
+    volumes:
+      - rae-qdrant-vector-data:/qdrant/storage
     networks:
       - rae-internal
 
@@ -29,6 +54,7 @@ services:
       - "8009:8009"
     depends_on:
       - rae-memory
+      - rae-redis
     networks:
       - rae-internal
 
@@ -85,6 +111,14 @@ services:
       - "18789:18789"
     networks:
       - rae-internal
+
+volumes:
+  rae-memory-db-data:
+    name: rae-memory-db-data
+  rae-redis-cache-data:
+    name: rae-redis-cache-data
+  rae-qdrant-vector-data:
+    name: rae-qdrant-vector-data
 
 networks:
   rae-internal:
