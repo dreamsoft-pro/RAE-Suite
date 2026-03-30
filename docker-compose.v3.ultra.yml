@@ -87,6 +87,8 @@ services:
       context: ../RAE-Phoenix
       dockerfile: Dockerfile
     container_name: rae-phoenix-v3
+    ports:
+      - "8012:8012"
     depends_on:
       - rae-suite
     networks:
@@ -97,6 +99,8 @@ services:
       context: ../RAE-Hive_eyes
       dockerfile: Dockerfile
     container_name: rae-hive-v3
+    ports:
+      - "8013:8013"
     depends_on:
       - rae-suite
     networks:
