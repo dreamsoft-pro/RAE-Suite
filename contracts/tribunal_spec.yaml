@@ -1,0 +1,26 @@
+version: "3.0"
+metadata:
+  project: "rae-core"
+  standard: "ISO-42001-Agentic"
+
+gates:
+  - id: "G-001"
+    name: "Pydantic V2 Compliance"
+    check: "all_models_inherit_from_pydantic_base"
+    severity: "blocker"
+
+  - id: "G-002"
+    name: "Documentation Coverage"
+    required_docs:
+      - "evidence.py"
+      - "capabilities.py"
+      - "economics.py"
+      - "governance.py"
+      - "fabric.py"
+    severity: "high"
+
+policies:
+  - id: "P-COST"
+    description: "All transactions must have cost metadata"
+    model: "economics.CostRecord"
+    severity: "high"

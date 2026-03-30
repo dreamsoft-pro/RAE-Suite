@@ -5,19 +5,27 @@ from rae_core.models.behavior import DepartmentBehaviorContract, BehaviorSignal
 from rae_suite.core.auditor_engine import AuditorEngine
 from rae_suite.core.behavior_registry import BehaviorRegistry
 from rae_suite.core.capability_registry import CapabilityRegistry
+from rae_suite.core.reconcile import Reconciler
+from rae_suite.core.factory import FactorySpec
 from rae_suite.fabric.cost_aware_router import CostAwareRouter
 
-app = FastAPI(title="RAE-Suite Control Plane v3 (Fabric Enabled)")
+app = FastAPI(title="RAE-Suite Control Plane v1.5 (Master)")
 
-# Infrastructure
+# Inicjalizacja komponentów
 cap_registry = CapabilityRegistry()
 beh_registry = BehaviorRegistry()
 auditor = AuditorEngine()
 router = CostAwareRouter()
+default_spec = FactorySpec(factory_id="master-factory", active_departments=[], agents={}, budgets={})
+reconciler = Reconciler(default_spec)
 
 @app.get("/health")
 async def health():
-    return {"status": "operational", "features": ["auditor", "fabric", "lab_connected"]}
+    return {"status": "operational", "version": "3.1.5", "mode": "master_assembly"}
+
+@app.get("/api/v1/factory/reconcile")
+async def factory_reconcile():
+    return await reconciler.reconcile_all()
 
 @app.post("/api/v1/departments/register")
 async def register_department(reg: AgentRegistration):
@@ -26,11 +34,10 @@ async def register_department(reg: AgentRegistration):
 
 @app.get("/api/v1/fabric/route")
 async def route_task(capability_id: str, max_risk: str = "high"):
-    # Pobieranie listy agentów z rejestru (zrzut do list dict dla routera)
     agents = [vars(a) for a in cap_registry._agents.values()]
     decision = router.route(capability_id, agents, max_risk)
     if not decision:
-        raise HTTPException(status_code=404, detail=f"No agent for {capability_id} with risk <= {max_risk}")
+        raise HTTPException(status_code=404, detail=f"No agent for {capability_id}")
     return decision
 
 @app.post("/api/v1/audit/evaluate")

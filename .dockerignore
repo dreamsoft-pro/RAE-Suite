@@ -1,0 +1,9 @@
+.git
+.venv
+venv
+node_modules
+**/node_modules
+packages/rae-open-claw/node_modules
+dist
+build
+*.log

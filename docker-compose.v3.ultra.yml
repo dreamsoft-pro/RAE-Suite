@@ -1,0 +1,92 @@
+version: "3.9"
+
+services:
+  rae-core:
+    build:
+      context: ../RAE-core
+      dockerfile: pyproject.toml # RAE-core jest pakietem, nie usługą, ale spójność wymaga jego obecności w kontekście
+    image: rae-core:v1.1.0
+    restart: "no"
+
+  rae-memory:
+    build:
+      context: ../RAE-agentic-memory
+      dockerfile: Dockerfile
+    container_name: rae-memory-v3
+    ports:
+      - "8000:8000"
+    environment:
+      - RAE_API_URL=http://localhost:8000
+    networks:
+      - rae-internal
+
+  rae-suite:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rae-suite-v3
+    ports:
+      - "8009:8009"
+    depends_on:
+      - rae-memory
+    networks:
+      - rae-internal
+
+  rae-lab:
+    build:
+      context: ../RAE-Lab
+      dockerfile: Dockerfile
+    container_name: rae-lab-v3
+    ports:
+      - "8011:8011"
+    depends_on:
+      - rae-suite
+    networks:
+      - rae-internal
+
+  rae-quality:
+    build:
+      context: ../RAE-Quality
+      dockerfile: Dockerfile
+    container_name: rae-quality-v3
+    ports:
+      - "8010:8010"
+    depends_on:
+      - rae-suite
+    networks:
+      - rae-internal
+
+  rae-phoenix:
+    build:
+      context: ../RAE-Phoenix
+      dockerfile: Dockerfile
+    container_name: rae-phoenix-v3
+    depends_on:
+      - rae-suite
+    networks:
+      - rae-internal
+
+  rae-hive:
+    build:
+      context: ../RAE-Hive_eyes
+      dockerfile: Dockerfile
+    container_name: rae-hive-v3
+    depends_on:
+      - rae-suite
+    networks:
+      - rae-internal
+
+  rae-openclaw:
+    build:
+      context: ../RAE-openclaw
+      dockerfile: Dockerfile.rae
+    container_name: rae-openclaw-v3
+    ports:
+      - "18789:18789"
+    networks:
+      - rae-internal
+
+networks:
+  rae-internal:
+    name: rae-internal
+    driver: bridge
