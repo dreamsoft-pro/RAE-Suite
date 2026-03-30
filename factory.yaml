@@ -1,0 +1,12 @@
+factory_id: "node1-factory-v3"
+active_departments:
+  - planning
+  - production
+  - quality
+  - lab
+costModel:
+  baseUnit: NCU
+  weights:
+    input_tokens: 0.000001
+    output_tokens: 0.000002
+    wall_time_s: 0.01
