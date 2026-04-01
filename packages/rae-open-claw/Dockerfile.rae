@@ -3,5 +3,6 @@ WORKDIR /app
 ENV CI=true
 RUN apt-get update && apt-get install -y git && npm install -g pnpm
 COPY . .
-RUN pnpm install && pnpm canvas:a2ui:bundle && pnpm build:docker
-CMD ["node", "dist/index.js", "gateway", "--bind", "0.0.0.0", "--port", "18789"]
+RUN pnpm install --prod --ignore-scripts
+# Wymuszamy bind lan wewnątrz obrazu dla 100% pewności
+CMD ["node", "dist/index.js", "gateway", "--bind", "lan", "--port", "18789"]
