@@ -7,3 +7,5 @@ packages/rae-open-claw/node_modules
 dist
 build
 *.log
+.openclaw_config/
+node_modules/
