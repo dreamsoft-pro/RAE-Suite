@@ -736,7 +736,7 @@ async def startup():
     asyncio.create_task(reconciler.run())
 
 app.add_event_handler("startup", startup)
-app.include_router(create_health_router(None), prefix="/api/v1")
+app.include_router(create_health_router(None), prefix="/v2")
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8090, reload=False)
@@ -1514,7 +1514,7 @@ async def register_with_control_plane(endpoint: str):
     try:
         async with httpx.AsyncClient() as client:
             resp = await client.post(
-                f"{CONTROL_PLANE_URL}/api/v1/departments/register",
+                f"{CONTROL_PLANE_URL}/v2/departments/register",
                 json={
                     "name": "planning",
                     "engine": "phoenix",

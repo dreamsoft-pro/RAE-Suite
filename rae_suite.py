@@ -11,8 +11,9 @@ import logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger("rae-suite")
 
-def run_funnel(mode: str, input_data: str):
-    logger.info(f"🚀 Starting RAE-Suite Factory in '{mode.upper()}' mode.")
+def run_funnel(mode: str, input_data: str, risk: str = "medium"):
+    importance = "critical" if risk == "high" else "medium"
+    logger.info(f"🚀 Starting RAE-Suite Factory in '{mode.upper()}' mode (Risk: {risk.upper()}).")
     logger.info(f"Input Target: {input_data}")
     
     # Stage 1: Ontological Ingestion
@@ -32,7 +33,7 @@ def run_funnel(mode: str, input_data: str):
 
     # Stage 4: Hard Frames & Deterministic Validation
     logger.info("Stage 4: Hard Frames & Deterministic Validation")
-    logger.info("-> Executing test suites and static ISO security scanners (Zero-Warning Policy).")
+    logger.info(f"-> Executing 3-Tier Quality Tribunal (Importance: {importance}).")
 
     # Stage 5: Observability & Telemetry Injection
     logger.info("Stage 5: Observability & Telemetry Injection")
@@ -51,6 +52,8 @@ def main():
                         help="Execution mode: 'create' for new features, 'refactor' for legacy code.")
     parser.add_argument("--source", type=str, help="Source path for refactoring (used in refactor mode).")
     parser.add_argument("--intent", type=str, help="Prompt/intent description (used in create mode).")
+    parser.add_argument("--risk", choices=["low", "medium", "high"], default="medium",
+                        help="Risk level. 'high' triggers dynamic 3x3x3 Council consensus.")
 
     args = parser.parse_args()
 
@@ -58,13 +61,13 @@ def main():
         if not args.source:
             logger.error("Refactor mode requires --source parameter.")
             sys.exit(1)
-        run_funnel(args.mode, args.source)
+        run_funnel(args.mode, args.source, args.risk)
     
     elif args.mode == "create":
         if not args.intent:
             logger.error("Create mode requires --intent parameter.")
             sys.exit(1)
-        run_funnel(args.mode, args.intent)
+        run_funnel(args.mode, args.intent, args.risk)
 
 if __name__ == "__main__":
     main()

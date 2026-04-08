@@ -37,7 +37,7 @@ services:
     build:
       context: ../RAE-agentic-memory
       dockerfile: Dockerfile
-    container_name: rae-memory-v3
+    #container_name: rae-memory-v3
     ports:
       - "8000:8000"
     environment:
@@ -49,11 +49,15 @@ services:
       - REDIS_HOST=rae-am-redis
       - QDRANT_HOST=rae-am-qdrant
       - PYTHONPATH=/app:/app/rae-core/src
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
     volumes:
       - ../RAE-core:/app/rae-core
+      - ~/.gemini/oauth_creds.json:/root/.gemini/oauth_creds.json:ro
     depends_on:
       - rae-am-postgres
       - rae-am-redis
+
     networks:
       - rae-internal
 
