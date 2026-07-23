@@ -38,12 +38,12 @@ async def test_constitutional_self_alignment_loop():
     # The task should complete successfully because the rewrite loop caught the absolute path
     # and autonomously aligned the patch (Phoenix mock succeeds on the 3rd attempt, which is what phoenix_engine triggers)
     assert receipt.execution_status == ExecutionStatus.SUCCESS
-    assert receipt.quality_status == QualityStatus.ACCEPT
+    assert receipt.quality_status == QualityStatus.APPROVED
     
     # Let's verify that the transition log shows the rewrite was triggered
     transition_reasons = [t.reason for t in receipt.state_transitions if t.reason]
     assert any("Constitutional violation" in r and "Triggering alignment rewrite" in r for r in transition_reasons)
-    assert any("Aligned Quality Gate result: QualityStatus.ACCEPT" in r or "Aligned Quality Gate result: ACCEPT" in r for r in transition_reasons)
+    assert any("Aligned Quality Gate result: QualityStatus.APPROVED" in r or "Aligned Quality Gate result: APPROVED" in r for r in transition_reasons)
 
 @pytest.mark.asyncio
 async def test_custom_coding_flow_review_loop(monkeypatch, tmp_path):

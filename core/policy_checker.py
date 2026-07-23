@@ -110,7 +110,7 @@ class RiskClassifier:
                 reasons.append(f"Intent matched principle {principle['id']}: {principle['name']}")
 
         assessment = RiskAssessment(
-            assessment_id=f"risk-{uuid.uuid4()}",
+            id=f"risk-{uuid.uuid4()}",
             trace_id=trace_id,
             risk_class=risk_class,
             confidence=0.98,
@@ -119,5 +119,5 @@ class RiskClassifier:
             assessed_at=datetime.now(timezone.utc)
         )
         
-        logger.info("risk_assessed_v7", trace_id=trace_id, risk_class=risk_class, assessment_id=assessment.assessment_id)
+        logger.info("risk_assessed_v7", trace_id=trace_id, risk_class=risk_class, id=assessment.id)
         return assessment

@@ -72,7 +72,7 @@ class ToolForge:
         
         # 4. If passed Quality Gate, load dynamically into CapabilityRegistry
         from rae_contracts import QualityStatus
-        if quality_result.status == QualityStatus.ACCEPT:
+        if quality_result.status == QualityStatus.APPROVED:
             new_cap = AgentCapability(
                 name=tool_name,
                 description=description,

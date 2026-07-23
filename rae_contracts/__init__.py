@@ -49,6 +49,8 @@ from rae_contracts.autonomy import (
     VoteType,
     ConsensusVote,
     ConsensusProposal,
+    InformationClass,
+    RestrictedContextEntry,
 )
 
 __all__ = [
@@ -96,4 +98,6 @@ __all__ = [
     "VoteType",
     "ConsensusVote",
     "ConsensusProposal",
+    "InformationClass",
+    "RestrictedContextEntry",
 ]

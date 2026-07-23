@@ -9,7 +9,7 @@ from rae_contracts import (
     ExecutionStatus, QualityStatus, MemoryWritebackStatus,
     ExecutionMode, ExecutionReceipt, StateTransition,
     DecisionLedgerEntry, PolicyBundle, CapabilityContract,
-    HandoffEnvelope, OutcomeRecord, VoteType
+    HandoffEnvelope, OutcomeRecord, VoteType, InformationClass, RestrictedContextEntry
 )
 from core.policy_checker import RiskClassifier, PolicyChecker
 from core.gitops_daemon import GitOpsDaemon
@@ -46,7 +46,7 @@ class AutonomyKernel:
         self.active_policy_hash = "p-default-v6.8"
         self.capability_contracts = {
             "rae-phoenix": CapabilityContract(
-                contract_id="cap-phoenix",
+                id="cap-phoenix",
                 allowed_risk_classes=[RiskClass.R0, RiskClass.R1, RiskClass.R2, RiskClass.R3],
                 allowed_tools=["git", "diff", "patch", "linter"],
                 denied_tools=["docker", "ssh", "drop", "truncate"],
@@ -55,7 +55,7 @@ class AutonomyKernel:
                 max_execution_time_seconds=600
             ),
             "rae-hive": CapabilityContract(
-                contract_id="cap-hive",
+                id="cap-hive",
                 allowed_risk_classes=[RiskClass.R0, RiskClass.R1, RiskClass.R2],
                 allowed_tools=["git", "shell", "run_test"],
                 denied_tools=["deploy", "ssh", "drop"],
@@ -64,7 +64,7 @@ class AutonomyKernel:
                 max_execution_time_seconds=300
             ),
             "rae-quality": CapabilityContract(
-                contract_id="cap-quality",
+                id="cap-quality",
                 allowed_risk_classes=[RiskClass.R0, RiskClass.R1],
                 allowed_tools=["pytest", "ruff", "mypy", "ast"],
                 denied_tools=["git", "shell", "write"],
@@ -73,7 +73,7 @@ class AutonomyKernel:
                 max_execution_time_seconds=300
             ),
             "rae-openclaw": CapabilityContract(
-                contract_id="cap-openclaw",
+                id="cap-openclaw",
                 allowed_risk_classes=[RiskClass.R0, RiskClass.R1, RiskClass.R2, RiskClass.R3, RiskClass.R4, RiskClass.R5],
                 allowed_tools=["ssh", "docker", "git", "shell"],
                 denied_tools=["drop"],
@@ -175,7 +175,7 @@ class AutonomyKernel:
         contract = self.capability_contracts.get(agent_id)
         if not contract:
             contract = CapabilityContract(
-                contract_id="cap-default",
+                id="cap-default",
                 allowed_risk_classes=[RiskClass.R0, RiskClass.R1, RiskClass.R2],
                 allowed_tools=["shell"],
                 denied_tools=[],
@@ -192,12 +192,12 @@ class AutonomyKernel:
                 transitions, started_at
             )
             
-        transition(TaskState.CAPABILITY_CHECKED, f"Agent {agent_id} capabilities verified against {contract.contract_id}.")
+        transition(TaskState.CAPABILITY_CHECKED, f"Agent {agent_id} capabilities verified against {contract.id}.")
         if policy_decision == DecisionType.ALLOW:
-            transition(TaskState.APPROVED, f"Policy decision ALLOW for agent {agent_id}; task approved for execution against {contract.contract_id}.")
+            transition(TaskState.APPROVED, f"Policy decision ALLOW for agent {agent_id}; task approved for execution against {contract.id}.")
         else:
-            transition(TaskState.REJECTED, f"Policy decision {policy_decision} for agent {agent_id}; task rejected against {contract.contract_id}.")
-            raise FatalEnterpriseError(f"Policy decision {policy_decision} is not ALLOW for agent {agent_id}; halting task against {contract.contract_id}.")
+            transition(TaskState.REJECTED, f"Policy decision {policy_decision} for agent {agent_id}; task rejected against {contract.id}.")
+            raise FatalEnterpriseError(f"Policy decision {policy_decision} is not ALLOW for agent {agent_id}; halting task against {contract.id}.")
 
 
         # 5. PLANNED
@@ -365,7 +365,16 @@ class AutonomyKernel:
         elif "fix" in intent.lower() or "repair" in intent.lower():
             # Create Handoff Envelope for Phoenix
             handoff = self._create_handoff_envelope(trace_id, "kernel", "rae-phoenix", ["phoenix.generate_patch"], payload)
-            res = await self.phoenix.run_repair_loop(trace_id, "Error: regression detected", handoff.restricted_context_pack.get("target_file", "main.py"))
+            target_file = "main.py"
+            for entry in handoff.restricted_context_pack:
+                if entry.key == "target_file":
+                    import base64
+                    try:
+                        target_file = base64.b64decode(entry.ciphertext.encode()).decode()
+                    except Exception:
+                        target_file = entry.ciphertext
+                    break
+            res = await self.phoenix.run_repair_loop(trace_id, "Error: regression detected", target_file)
             execution_status = ExecutionStatus.SUCCESS if res["status"] == "SUCCESS" else ExecutionStatus.FAILED
 
         # 3. Default Execution (standard fallback success)
@@ -441,7 +450,7 @@ class AutonomyKernel:
         )
         
         # Constitutional AI Auto-Alignment Rewrite Loop (Anthropic Approach)
-        if quality_result.status in [QualityStatus.REJECT, QualityStatus.QUARANTINE] and quality_result.architecture_violations > 0:
+        if quality_result.status in [QualityStatus.REJECTED, QualityStatus.QUARANTINE] and quality_result.architecture_violations > 0:
             logger.warning(f"constitutional_violation_found_triggering_autonomous_alignment_rewrite trace_id={trace_id} details={quality_result.report_uri}")
             transition(TaskState.QUALITY_GATE, f"Constitutional violation: {quality_result.report_uri}. Triggering alignment rewrite.")
             
@@ -463,14 +472,14 @@ class AutonomyKernel:
                     metrics=metrics_payload
                 )
                 transition(TaskState.QUALITY_GATE, f"Aligned Quality Gate result: {quality_result.status}")
-                if quality_result.status == QualityStatus.ACCEPT:
+                if quality_result.status == QualityStatus.APPROVED:
                     execution_status = ExecutionStatus.SUCCESS
             else:
                 transition(TaskState.QUALITY_GATE, f"Alignment rewrite failed to resolve violation: {quality_result.report_uri}")
         else:
             transition(TaskState.QUALITY_GATE, f"Quality Gate result: {quality_result.status}")
 
-        if quality_result.status in [QualityStatus.REJECT, QualityStatus.QUARANTINE]:
+        if quality_result.status in [QualityStatus.REJECTED, QualityStatus.QUARANTINE]:
              execution_status = ExecutionStatus.REJECTED
              # Early exit or cleanup if quality is rejected
              if sandbox_path:
@@ -509,7 +518,7 @@ class AutonomyKernel:
         self, goal_id, task_id, trace_id, risk_class, 
         policy_decision, execution_status, final_state, 
         transitions, started_at, evidence_hash="n/a", ledger_id="n/a",
-        quality_status=QualityStatus.ACCEPT
+        quality_status=QualityStatus.APPROVED
     ) -> ExecutionReceipt:
         
         finished_at = datetime.now(timezone.utc)
@@ -531,10 +540,10 @@ class AutonomyKernel:
             pass
 
         outcome_rec = OutcomeRecord(
+            id=f"rec-{uuid.uuid4()}",
             trace_id=trace_id,
             span_id=otel_span_id,
             parent_span_id=otel_parent_span_id,
-
             goal_id=goal_id,
             task_id=task_id,
             risk_class=risk_class,
@@ -577,7 +586,7 @@ class AutonomyKernel:
             selected_model = "kimi-k2.5"
 
         receipt = ExecutionReceipt(
-            receipt_id=f"rec-{uuid.uuid4()}",
+            id=f"rec-{uuid.uuid4()}",
             goal_id=goal_id,
             task_id=task_id,
             trace_id=trace_id,
@@ -613,29 +622,44 @@ class AutonomyKernel:
 
     def _create_handoff_envelope(self, trace_id: str, source: str, target: str, required_caps: List[str], payload: Dict[str, Any]) -> HandoffEnvelope:
         import uuid
-        # Restrict context pack (Handoff envelope context isolation)
-        restricted_context = {}
+        import base64
+        restricted_context_pack = []
         if "historical_context" in payload:
             # Only handoff internal or public context, never RESTRICTED context unless target is authorized
-            restricted_context["historical_context"] = [
+            hist_list = [
                 ctx for ctx in payload["historical_context"]
                 if ctx.get("information_class", "internal") != "restricted" or target == "rae-openclaw"
             ]
+            hist_json = json.dumps(hist_list)
+            restricted_context_pack.append(
+                RestrictedContextEntry(
+                    key="historical_context",
+                    ciphertext=base64.b64encode(hist_json.encode()).decode(),
+                    key_id="dummy-kms-key-id"
+                )
+            )
         if "target_file" in payload:
-            restricted_context["target_file"] = payload["target_file"]
+            target_file_val = payload["target_file"]
+            restricted_context_pack.append(
+                RestrictedContextEntry(
+                    key="target_file",
+                    ciphertext=base64.b64encode(target_file_val.encode()).decode(),
+                    key_id="dummy-kms-key-id"
+                )
+            )
             
         handoff = HandoffEnvelope(
-            handoff_id=f"hnd-{uuid.uuid4().hex[:8]}",
+            id=f"hnd-{uuid.uuid4().hex[:8]}",
             trace_id=trace_id,
             source_module=source,
             target_module=target,
             required_capabilities=required_caps,
-            restricted_context_pack=restricted_context,
+            restricted_context_pack=restricted_context_pack,
             token_budget=50000 if target != "rae-openclaw" else 200000,
             timeout_seconds=300,
-            information_class=payload.get("information_class", "internal")
+            information_class=InformationClass(payload.get("information_class", "internal"))
         )
-        logger.info(f"handoff_envelope_created: handoff_id={handoff.handoff_id}, target={target}")
+        logger.info(f"handoff_envelope_created: id={handoff.id}, target={target}")
         return handoff
 
 
