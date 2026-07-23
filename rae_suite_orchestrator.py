@@ -244,7 +244,7 @@ class RAE_CEO_Orchestrator:
             payload={"target_agent": agent, "instruction": reasoning}
         )
         
-        logger.info("task_lifecycle_completed", receipt_id=receipt.receipt_id, status=receipt.execution_status)
+        logger.info("task_lifecycle_completed", id=receipt.id, status=receipt.execution_status)
 
     async def _dispatch_batch(self, batch):
         """Dispatches a batch of tasks via the Autonomy Kernel to optimize context switches."""
@@ -284,7 +284,7 @@ class RAE_CEO_Orchestrator:
                 }
             }
         )
-        logger.info("batch_lifecycle_completed", receipt_id=receipt.receipt_id, status=receipt.execution_status)
+        logger.info("batch_lifecycle_completed", id=receipt.id, status=receipt.execution_status)
 
 if __name__ == "__main__":
     orchestrator = RAE_CEO_Orchestrator()
