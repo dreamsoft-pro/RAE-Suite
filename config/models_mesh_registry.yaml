@@ -1,0 +1,125 @@
+# RAE-Suite Dynamic Model & Mesh Registry Config
+# Allows hot-reloading models, dynamic price-to-quality Pareto optimization, and node hardware routing.
+
+global_settings:
+  pareto_weight_quality: 0.6
+  pareto_weight_cost: 0.25
+  pareto_weight_latency: 0.15
+  auto_reload_interval_seconds: 60
+
+nodes:
+  local_laptop:
+    node_id: "node0_rtx5000"
+    name: "Laptop Primary (RTX 5000)"
+    has_cuda: true
+    vram_gb: 16
+    status: "online"
+    capabilities: ["local_inference", "code_generation", "fast_audit"]
+
+  node1_lumina:
+    node_id: "node1_lumina_rtx4080"
+    name: "Node 1 Lumina (RTX 4080)"
+    has_cuda: true
+    vram_gb: 16
+    status: "online"
+    capabilities: ["heavy_local_inference", "embeddings", "vector_search"]
+
+  cpu_node:
+    node_id: "node_cpu_thin"
+    name: "CPU Thin Client"
+    has_cuda: false
+    vram_gb: 0
+    status: "online"
+    capabilities: ["api_proxy", "light_orchestration"]
+
+models:
+  # Planning & High-Reasoning Tier
+  "anthropic/claude-fable-5":
+    model_name: "anthropic/claude-fable-5"
+    provider: "openrouter"
+    category: "planning"
+    cost_input_1k: 0.0030
+    cost_output_1k: 0.0120
+    avg_latency_ms: 700.0
+    quality_score: 0.99
+    supports_tools: true
+    assigned_node: "any"
+
+  "deepseek/deepseek-v4":
+    model_name: "deepseek/deepseek-v4"
+    provider: "openrouter"
+    category: "reasoning"
+    cost_input_1k: 0.00060
+    cost_output_1k: 0.00240
+    avg_latency_ms: 650.0
+    quality_score: 0.98
+    supports_tools: true
+    assigned_node: "any"
+
+  "openai/gpt-5.6-luna-pro":
+    model_name: "openai/gpt-5.6-luna-pro"
+    provider: "openrouter"
+    category: "audit"
+    cost_input_1k: 0.0020
+    cost_output_1k: 0.0060
+    avg_latency_ms: 600.0
+    quality_score: 0.96
+    supports_tools: true
+    assigned_node: "any"
+
+  "anthropic/claude-opus-4.8":
+    model_name: "anthropic/claude-opus-4.8"
+    provider: "openrouter"
+    category: "architecture"
+    cost_input_1k: 0.0030
+    cost_output_1k: 0.0120
+    avg_latency_ms: 750.0
+    quality_score: 0.97
+    supports_tools: true
+    assigned_node: "any"
+
+  "openai/gpt-5.6-sol":
+    model_name: "openai/gpt-5.6-sol"
+    provider: "openrouter"
+    category: "code_synthesis"
+    cost_input_1k: 0.0025
+    cost_output_1k: 0.0075
+    avg_latency_ms: 500.0
+    quality_score: 0.95
+    supports_tools: true
+    assigned_node: "any"
+
+  # Antigravity Ultra (Flat Rate / Email Auth)
+  "antigravity/ultra-coder":
+    model_name: "antigravity/ultra-coder"
+    provider: "antigravity_ultra"
+    category: "code_synthesis"
+    cost_input_1k: 0.0
+    cost_output_1k: 0.0
+    avg_latency_ms: 350.0
+    quality_score: 0.96
+    supports_tools: true
+    assigned_node: "local_laptop"
+
+  # Local Hardware Models (RTX 5000 / RTX 4080)
+  "local/deepseek-r1-distill":
+    model_name: "local/deepseek-r1-distill"
+    provider: "local"
+    category: "local_guard"
+    cost_input_1k: 0.0
+    cost_output_1k: 0.0
+    avg_latency_ms: 220.0
+    quality_score: 0.84
+    supports_tools: true
+    assigned_node: "local_laptop"
+
+  "node1/qwen-2.5-coder-32b":
+    model_name: "node1/qwen-2.5-coder-32b"
+    provider: "local_mesh"
+    category: "local_mesh_heavy"
+    cost_input_1k: 0.0
+    cost_output_1k: 0.0
+    avg_latency_ms: 190.0
+    quality_score: 0.91
+    supports_tools: true
+    assigned_node: "node1_lumina"
