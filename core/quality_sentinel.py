@@ -99,8 +99,24 @@ class QualitySentinel:
         """
         import ast
         violations = []
+
+        # Clean git diff formatting if present
+        clean_lines = []
+        for line in patch_code.splitlines():
+            if line.startswith("@@") or line.startswith("---") or line.startswith("+++") or line.startswith("diff "):
+                continue
+            if line.startswith("+ "):
+                clean_lines.append(line[2:])
+            elif line.startswith("+"):
+                clean_lines.append(line[1:])
+            elif line.startswith("-"):
+                continue
+            else:
+                clean_lines.append(line)
+        cleaned_code = "\n".join(clean_lines)
+
         try:
-            tree = ast.parse(patch_code)
+            tree = ast.parse(cleaned_code)
             for node in ast.walk(tree):
                 # Check for imports
                 if isinstance(node, ast.Import):
