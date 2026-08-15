@@ -3,9 +3,22 @@ import os
 import httpx
 import json
 
-# Force correct python and path
-RAE_CORE_PATH = "/home/grzegorz-lesniowski/cloud/RAE-Suite/packages/rae-agentic-memory/rae-core"
-VENV_PATH = "/home/grzegorz-lesniowski/cloud/.venv/lib/python3.12/site-packages"
+from pathlib import Path
+
+# Force correct python and path dynamically
+SCRIPT_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = SCRIPT_DIR.parent
+CLOUD_ROOT = PROJECT_ROOT.parent
+
+RAE_CORE_PATH = str(PROJECT_ROOT / "packages" / "rae-agentic-memory" / "rae-core")
+
+# Find site-packages directory in virtualenv dynamically
+lib_dir = CLOUD_ROOT / ".venv" / "lib"
+site_packages_dirs = list(lib_dir.glob("python*/site-packages")) if lib_dir.exists() else []
+if site_packages_dirs:
+    VENV_PATH = str(site_packages_dirs[0])
+else:
+    VENV_PATH = str(CLOUD_ROOT / ".venv" / "lib" / "python3.12" / "site-packages")
 
 if RAE_CORE_PATH not in sys.path:
     sys.path.append(RAE_CORE_PATH)
@@ -27,11 +40,12 @@ def validate_integration():
     # 2. Simulate RAE-First Hook Event
     # We use the full path to python from venv to ensure psutil is found
     print("\n[STEP 1] Simulating AGY Hook Event...")
-    hook_script = "/home/grzegorz-lesniowski/cloud/scripts/agy_rae_hook.py"
-    python_bin = "/home/grzegorz-lesniowski/cloud/.venv/bin/python3"
+    hook_script = str(CLOUD_ROOT / "scripts" / "agy_rae_hook.py")
+    python_bin = str(CLOUD_ROOT / ".venv" / "bin" / "python3")
     
-    # Set PYTHONPATH for the sub-process as well
+    # Set PYTHONPATH and RAE_API_URL for the sub-process as well
     os.environ["PYTHONPATH"] = f"{RAE_CORE_PATH}:{os.environ.get('PYTHONPATH', '')}"
+    os.environ["RAE_API_URL"] = api_url
     
     cmd = f"{python_bin} {hook_script} validation_event 'Fluid test of RAE-First bridge'"
     os.system(cmd)

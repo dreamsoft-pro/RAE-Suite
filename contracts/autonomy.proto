@@ -1,0 +1,299 @@
+// contracts/autonomy.proto
+//
+// RAE-Suite Autonomy Contract
+// ----------------------------
+// Defines the canonical lifecycle states, risk classification, execution
+// status, and quality gate status used across all autonomy services
+// (task intake, approval, execution, and escalation pipelines).
+//
+// Versioning: this file follows semantic contract versioning via the
+// package path (v1). Backward-incompatible changes require a new
+// package version (e.g., rae.autonomy.v2).
+//
+// Compatibility policy (within v1):
+//   - New enum values may be appended; consumers MUST tolerate unknown
+//     enum values by treating them as the corresponding *_UNSPECIFIED value.
+//   - New fields may be added using previously unused field numbers.
+//   - Field numbers of removed fields MUST be reserved and never reused.
+//   - The type of an existing field must not change. (Singular -> repeated
+//     for message-typed fields is the sole wire-compatible exception.)
+
+syntax = "proto3";
+
+package rae.autonomy.v1;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/rae-suite/contracts/autonomy/v1;autonomyv1";
+option java_package = "com.raesuite.contracts.autonomy.v1";
+option java_multiple_files = true;
+option java_outer_classname = "AutonomyProto";
+option csharp_namespace = "RaeSuite.Contracts.Autonomy.V1";
+option objc_class_prefix = "RAEA";
+
+// =============================================================================
+// Enums
+// =============================================================================
+
+// TaskState represents the full lifecycle of an autonomous task from intake
+// through terminal resolution. Zero value is always UNSPECIFIED per proto3
+// convention to detect uninitialized fields.
+enum TaskState {
+  TASK_STATE_UNSPECIFIED = 0;
+
+  // Task has been received by the intake pipeline but not yet validated.
+  TASK_STATE_RECEIVED = 1;
+
+  // Task is undergoing schema/policy validation.
+  TASK_STATE_VALIDATING = 2;
+
+  // Task passed validation and is eligible for approval routing.
+  TASK_STATE_VALIDATED = 3;
+
+  // Task is awaiting human or policy-engine approval.
+  TASK_STATE_PENDING_APPROVAL = 4;
+
+  // Task has been approved for execution. Auto-approval (policy bypass) is
+  // NOT a separate state: it is recorded as an Approval whose
+  // approver.type is ACTOR_TYPE_SYSTEM, keeping a single approval path.
+  TASK_STATE_APPROVED = 5;
+
+  // Task was explicitly rejected during the approval stage.
+  TASK_STATE_REJECTED = 6;
+
+  // Task is approved and queued for execution scheduling.
+  TASK_STATE_QUEUED = 7;
+
+  // Task is actively executing.
+  TASK_STATE_EXECUTING = 8;
+
+  // Task completed successfully and passed all required gates.
+  TASK_STATE_COMPLETED = 9;
+
+  // Task failed terminally with no human intervention required
+  // (e.g., retries exhausted under an auto-retry policy).
+  TASK_STATE_FAILED = 10;
+
+  // Task failed and is awaiting human/operator intervention. Retained as a
+  // distinct state (rather than derived from FAILED + escalations) so
+  // operators can query "tasks needing attention" directly; see
+  // Task.escalations for details. After intervention the task may
+  // transition back to QUEUED; each retry appends to execution_results.
+  TASK_STATE_FAILED_ESCALATED = 11;
+
+  // Task was cancelled before or during execution.
+  TASK_STATE_CANCELLED = 12;
+
+  // Task's effects were fully rolled back after completion or partial
+  // execution. Requires a prior EXECUTING or COMPLETED state in history.
+  TASK_STATE_ROLLED_BACK = 13;
+
+  // Rollback/remediation of task side effects is in progress. Entered from
+  // EXECUTING or COMPLETED; transitions to ROLLED_BACK on success or
+  // FAILED_ESCALATED on failure.
+  TASK_STATE_ROLLING_BACK = 14;
+}
+
+// RiskClass classifies the potential impact/blast radius of a task,
+// driving approval routing and guardrail enforcement.
+enum RiskClass {
+  RISK_CLASS_UNSPECIFIED = 0;
+  RISK_CLASS_LOW = 1;
+  RISK_CLASS_MEDIUM = 2;
+  RISK_CLASS_HIGH = 3;
+  RISK_CLASS_CRITICAL = 4;
+}
+
+// ExecutionStatus captures the fine-grained status of a single execution
+// attempt, independent of the higher-level TaskState.
+enum ExecutionStatus {
+  EXECUTION_STATUS_UNSPECIFIED = 0;
+  EXECUTION_STATUS_PENDING = 1;
+  EXECUTION_STATUS_IN_PROGRESS = 2;
+  EXECUTION_STATUS_SUCCEEDED = 3;
+  EXECUTION_STATUS_FAILED = 4;
+  EXECUTION_STATUS_TIMED_OUT = 5;
+  EXECUTION_STATUS_ABORTED = 6;
+  EXECUTION_STATUS_RETRYING = 7;
+}
+
+// QualityStatus represents the outcome of post-execution quality gates
+// (automated checks, human review, or policy waivers).
+enum QualityStatus {
+  QUALITY_STATUS_UNSPECIFIED = 0;
+  QUALITY_STATUS_PENDING_REVIEW = 1;
+  QUALITY_STATUS_PASSED = 2;
+  QUALITY_STATUS_FAILED = 3;
+  QUALITY_STATUS_WAIVED = 4;
+  QUALITY_STATUS_NOT_APPLICABLE = 5;
+}
+
+// ActorType distinguishes the kind of entity that triggers actions or
+// decisions within the autonomy pipeline.
+enum ActorType {
+  ACTOR_TYPE_UNSPECIFIED = 0;
+  ACTOR_TYPE_HUMAN = 1;
+  ACTOR_TYPE_AGENT = 2;
+  ACTOR_TYPE_SYSTEM = 3;
+}
+
+// =============================================================================
+// Supporting Messages
+// =============================================================================
+
+// Actor identifies who or what performed an action (human operator,
+// autonomous agent, or system process).
+message Actor {
+  // Unique within auth_domain.
+  string id = 1;
+  string display_name = 2;
+  ActorType type = 3;
+
+  // Authentication/identity domain that issued `id`, e.g. "ldap.corp.example",
+  // "spiffe://cluster/ns/service", or "api-token". Combined with `id` it
+  // forms a globally unique, auditable identity.
+  string auth_domain = 4;
+}
+
+// Approval records the outcome of a single approval decision for a task.
+// Multi-stage approvals and auto-approvals are represented as multiple
+// entries in Task.approvals.
+message Approval {
+  Actor approver = 1;
+  google.protobuf.Timestamp decided_at = 2;
+  bool approved = 3;
+  string comment = 4;
+
+  // Detached cryptographic signature over the canonical serialization of
+  // (task_id, approver.id, decided_at, approved), providing non-repudiable
+  // proof of the decision. Signature algorithm and key distribution are
+  // defined out-of-band by the platform security specification.
+  bytes digital_signature = 5;
+
+  // Unique key for this decision (e.g., UUIDv4). Approval services use it
+  // to deduplicate retried submissions of the same decision.
+  string idempotency_key = 6;
+}
+
+// Escalation records details when a task transitions to
+// TASK_STATE_FAILED_ESCALATED, including who it was routed to.
+// Task.escalations is repeated to support re-escalation.
+message Escalation {
+  string reason = 1;
+  Actor escalated_to = 2;
+  google.protobuf.Timestamp escalated_at = 3;
+  string ticket_reference = 4;
+}
+
+// ExecutionResult captures the runtime outcome of a single execution
+// attempt. Retries append additional entries to Task.execution_results.
+message ExecutionResult {
+  // Field 4 (google.protobuf.Duration duration) was removed: it is
+  // derivable from finished_at - started_at. Reserved to prevent reuse.
+  reserved 4;
+
+  ExecutionStatus status = 1;
+  google.protobuf.Timestamp started_at = 2;
+  google.protobuf.Timestamp finished_at = 3;
+
+  // Human-readable summary of the attempt outcome.
+  string output_summary = 5;
+
+  // Populated when status is FAILED, TIMED_OUT, or ABORTED.
+  string error_message = 6;
+
+  // 1-based attempt number within Task.execution_results.
+  int32 attempt_number = 7;
+
+  // Structured machine-readable outputs of the attempt (e.g., metric
+  // names, artifact URIs, result codes), keyed by producer-defined names.
+  map<string, string> outputs = 8;
+}
+
+// QualityCheckResult captures the result of one round of post-execution
+// quality gates. For fully automated gates, reviewed_by is a SYSTEM actor.
+message QualityCheckResult {
+  QualityStatus status = 1;
+  repeated string checks_passed = 2;
+  repeated string checks_failed = 3;
+  Actor reviewed_by = 4;
+  google.protobuf.Timestamp reviewed_at = 5;
+  string notes = 6;
+}
+
+// TaskStateTransition is an audit record of a single state change,
+// used to build a full lifecycle history for a task.
+message TaskStateTransition {
+  TaskState from_state = 1;
+  TaskState to_state = 2;
+  google.protobuf.Timestamp transitioned_at = 3;
+  Actor triggered_by = 4;
+  string reason = 5;
+}
+
+// =============================================================================
+// Core Aggregate: Task
+// =============================================================================
+
+// Task is the primary aggregate representing an autonomous unit of work
+// as it moves through intake, approval, execution, and quality gating.
+//
+// Lifecycle invariants (enforced by services; documented here for consumers):
+//   - RECEIVED is the initial state; the first history entry has
+//     from_state = TASK_STATE_UNSPECIFIED.
+//   - history is append-only and ordered by transitioned_at; Task.state
+//     always equals the to_state of the most recent history entry.
+//   - APPROVED requires at least one approvals entry with approved = true
+//     (including auto-approvals recorded by an ACTOR_TYPE_SYSTEM approver).
+//   - COMPLETED requires a SUCCEEDED entry in execution_results and a most
+//     recent quality_checks entry of PASSED, WAIVED, or NOT_APPLICABLE.
+//   - ROLLED_BACK requires a prior EXECUTING or COMPLETED state in history.
+//   - approvals, execution_results, quality_checks, and escalations are
+//     append-only; the last element is the current/most recent record.
+message Task {
+  string task_id = 1;
+  string title = 2;
+  string description = 3;
+
+  TaskState state = 4;
+  RiskClass risk_class = 5;
+
+  Actor requested_by = 6;
+
+  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp updated_at = 8;
+
+  // Full decision/attempt records (append-only; see invariants above).
+  repeated Approval approvals = 9;
+  repeated ExecutionResult execution_results = 10;
+  repeated QualityCheckResult quality_checks = 11;
+  repeated Escalation escalations = 12;
+
+  // Full ordered history of state transitions for audit/replay purposes.
+  repeated TaskStateTransition history = 13;
+
+  // Free-form key/value metadata (correlation IDs, source system, trace
+  // context, ...). Conventions, validated server-side (this module is
+  // intentionally free of validation-framework dependencies):
+  //   - Keys: 1-63 chars; lowercase alphanumeric plus '-', '_', '.', '/'
+  //     (reverse-DNS prefixes allowed, e.g. "example.com/team").
+  //   - Values: at most 1024 chars.
+  //   - Well-known keys: "correlation_id", "source_system", "traceparent".
+  map<string, string> metadata = 14;
+
+  // Tasks must not begin execution after this time. Enforcement is
+  // server-side. Absent means no deadline.
+  google.protobuf.Timestamp deadline = 15;
+
+  // Version of the task definition/schema governing the payload referenced
+  // by payload_uri. Independent of this contract's package version.
+  string task_version = 16;
+
+  // URI of the immutable task payload (e.g., s3://, gs://, https://),
+  // keeping this envelope small and the payload content-addressable.
+  string payload_uri = 17;
+
+  // Unique key for this logical submission (e.g., UUIDv4). Intake services
+  // use it to deduplicate retried submissions of the same task.
+  string idempotency_key = 18;
+}

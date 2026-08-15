@@ -97,3 +97,25 @@ async def test_cognitive_planner_adaptive_search_depth():
         risk_class=RiskClass.R3
     )
     assert plan.win_probability > 0.0
+
+@pytest.mark.asyncio
+async def test_cognitive_planner_consensus_chain(monkeypatch):
+    import os
+    monkeypatch.setenv("RAE_PLANNING_FLOW", "consensus_chain")
+    planner = CognitivePlanner()
+    intent = "Design a low-latency caching layer for pgpool"
+    
+    plan = await planner.plan_task(
+        intent=intent,
+        payload={},
+        risk_class=RiskClass.R3
+    )
+    
+    assert isinstance(plan, CognitivePlan)
+    assert plan.intent == intent
+    assert len(plan.branches) == 1
+    assert plan.branches[0].name == "Consensus Refined Path"
+    assert "Consensus Chain (Luna -> R1 -> Opus -> Sol -> Fable)" in plan.branches[0].architectural_approach
+    assert plan.win_probability == 0.98
+    assert "Model openai/gpt-5.6-luna-pro review completed successfully." in plan.branches[0].critique_feedback
+

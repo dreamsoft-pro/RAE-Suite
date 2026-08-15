@@ -15,6 +15,17 @@ def run_funnel(mode: str, input_data: str, risk: str = "medium"):
     importance = "critical" if risk == "high" else "medium"
     logger.info(f"🚀 Starting RAE-Suite Factory in '{mode.upper()}' mode (Risk: {risk.upper()}).")
     logger.info(f"Input Target: {input_data}")
+
+    # Stage 0: Pre-Code R&D & Hypothesis Stage (RAE-CRL & RAE-Lab Integration)
+    logger.info("Stage 0: Pre-Code R&D & Hypothesis Stage (RAE-CRL Continual Research & RAE-Lab Validation)")
+    from core.research_stage import RAEResearchEngine
+    research_engine = RAEResearchEngine(research_id=f"res_{mode}_001")
+    hypotheses = [
+        {"id": "H1", "statement": f"Architecture scan for {input_data} complies with ISO 27001 / 42001 zero-leakage policy"},
+        {"id": "H2", "statement": f"Refactoring / creation plan for {input_data} guarantees zero breaking API changes"}
+    ]
+    report = research_engine.evaluate_refactoring_hypotheses(input_data, [input_data], hypotheses)
+    logger.info(f"-> RAE-CRL & RAE-Lab Research Report: Ready={report.ready_for_execution} | Strategy={report.recommended_strategy}")
     
     # Stage 1: Ontological Ingestion
     logger.info("Stage 1: Ontological Ingestion (Discovery)")

@@ -4,7 +4,7 @@ ENV CI=true
 RUN apt-get update && apt-get install -y git && npm install -g pnpm
 COPY . .
 RUN pnpm install --ignore-scripts
-RUN pnpm build
+RUN OPENCLAW_A2UI_SKIP_MISSING=1 pnpm build
 # Build Control UI assets
 RUN pnpm ui:build
 CMD ["node", "openclaw.mjs", "gateway", "--bind", "lan", "--port", "18789", "--allow-unconfigured"]

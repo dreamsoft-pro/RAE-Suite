@@ -40,7 +40,7 @@ from rae_contracts.autonomy import (
     ApprovalPack,
     RollbackPlan,
     StateTransition,
-    ExecutionReceipt,
+    ExecutionReceipt as AutonomyExecutionReceipt,
     ContextEnvelope,
     WorkflowStep,
     WorkflowDefinition,
@@ -49,6 +49,23 @@ from rae_contracts.autonomy import (
     VoteType,
     ConsensusVote,
     ConsensusProposal,
+    InformationClass,
+    RestrictedContextEntry,
+)
+from rae_contracts.execution_receipt import (
+    ExecutionReceipt,
+    TestExecutionResult,
+    ISOAuditMetadata,
+    ExecutionStatus as VerifiedExecutionStatus,
+    verify_execution_receipt,
+    verify_receipt_chain,
+)
+from rae_contracts.capability_enforcer import (
+    CapabilityEnforcer,
+    AdmissionRequest,
+    AdmissionDecision,
+    AdmissionStatus,
+    ResourceLimits,
 )
 
 __all__ = [
@@ -87,7 +104,18 @@ __all__ = [
     "ApprovalPack",
     "RollbackPlan",
     "StateTransition",
+    "AutonomyExecutionReceipt",
     "ExecutionReceipt",
+    "TestExecutionResult",
+    "ISOAuditMetadata",
+    "VerifiedExecutionStatus",
+    "verify_execution_receipt",
+    "verify_receipt_chain",
+    "CapabilityEnforcer",
+    "AdmissionRequest",
+    "AdmissionDecision",
+    "AdmissionStatus",
+    "ResourceLimits",
     "ContextEnvelope",
     "WorkflowStep",
     "WorkflowDefinition",
@@ -96,4 +124,6 @@ __all__ = [
     "VoteType",
     "ConsensusVote",
     "ConsensusProposal",
+    "InformationClass",
+    "RestrictedContextEntry",
 ]

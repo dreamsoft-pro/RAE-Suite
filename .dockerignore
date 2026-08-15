@@ -9,3 +9,9 @@ build
 *.log
 .openclaw_config/
 node_modules/
+packages/rae-phoenix/node_modules
+packages/rae-phoenix/venv
+packages/rae-phoenix/.git
+packages/rae-phoenix/frontend-master
+packages/rae-phoenix/.pytest_cache
+packages/rae-phoenix/htmlcov

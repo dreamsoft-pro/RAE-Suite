@@ -5,3 +5,9 @@ workspace/audit_proposals/
 __pycache__/
 *.pyc
 .pytest_cache/
+venv/
+build/
+*.xml
+*.log
+.env.bak
+"docs/Rekomendowana Kolejność.txt"

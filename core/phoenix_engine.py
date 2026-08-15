@@ -46,7 +46,7 @@ class PhoenixEngine:
             # --- Simulation of Quality Evaluation ---
             # In a real system, this would run tests in a sandbox
             success = (attempt == 3) # Mock success on 3rd attempt
-            quality_status = QualityStatus.ACCEPT if success else QualityStatus.REJECT
+            quality_status = QualityStatus.APPROVED if success else QualityStatus.REJECTED
             
             # 3. EMIT QUALITY_EVALUATED
             self._emit_audit_event(trace_id, AuditableEventType.QUALITY_EVALUATED, f"Quality Gate: {quality_status}")

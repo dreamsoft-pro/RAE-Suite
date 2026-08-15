@@ -1,0 +1,66 @@
+Rekomendowana Kolejność Wdrażania Planów z Katalogu docs/                                                                                                                         
+                                                                                                                                                                                     
+  Wdrożenie planów z katalogu /home/grzegorz/cloud/RAE-Suite/docs powinno odbywać się w ściśle określonej, sekwencyjnej kolejności. Podstawową zasadą architektoniczną jest: najpierw
+  twarde jądro i bezpieczne kontrakty (Core & Security), następnie warstwa sieciowa i autoryzacyjna (A2A & Keycloak), a na końcu warstwa wizualizacyjna i analityczna (RAE-PORTAL UI 
+  & Global Search).                                                                                                                                                                  
+                                                                                                                                                                                     
+  Poniżej znajduje się zalecana kolejność wdrażania z podziałem na fazy, zależności oraz uzasadnienia techniczne.                                                                    
+  ──────                                                                                                                                                                             
+  ## ── FAZA 1: Podstawa Systemu, Bezpieczeństwo i Niezaprzeczalność (Core & Security Baseline)                                                                                      
+                                                                                                                                                                                     
+  │ Cel: Zapewnienie, że żaden moduł nie generuje fałszywych sukcesów (Zero Fake Success), sekretne dane PII są maskowane, a wszystkie akcje są logowane kryptograficznie.           
+                                                                                                                                                                                     
+  1. docs/goal/detailed_implementation_plan.md & docs/goal/vulnerabilities_remediation_plan.md                                                                                       
+      • Krok 1.1 (Faza 0): Wdrożenie weryfikatorów walidacji strategii branchingowych (Git Flow / SemVer), silnika Zero Fake Success (wymagającego dowodu wykonania testów i         
+      dyferencjału kodu) oraz łańcucha zdarzeń MAES (SHA-256).                                                                                                                       
+      • Krok 1.2 (Faza 1): Wdrożenie Model Routera i silnika podwójnej eskalacji (Dual Escalation Engine).                                                                           
+      • Krok 1.3 (Faza 2 & 3): Skonfigurowanie 3-poziomowego Trybunału Jakości (QualityTribunal) oraz audytora zgodności z normami ISO 27001 / ISO 42001.                            
+  2. docs/specs/RAE-Consensus-Flows.md & docs/adr/ADR-001-RAE-Suite-Contracts-FSM.md                                                                                                 
+      • Utwardzenie maszyn stanów (FSM) dla transakcji, unieważnień certyfikatów i idempotentności operacji.                                                                         
+                                                                                                                                                                                     
+  ──────                                                                                                                                                                             
+  ## ── FAZA 2: Protokół A2A, Autoryzacja Keycloak i Lekki Core (Mesh & Auth Infrastructure)                                                                                         
+                                                                                                                                                                                     
+  │ Cel: Uruchomienie bezpiecznej komunikacji agent-do-agenta (A2A), rozproszonego limitowania żądań i agnostyczności od baz/modeli dla dowolnych urządzeń.                          
+                                                                                                                                                                                     
+  3. docs/RAE_SUITE_A2A_KEYCLOAK_LIGHTWEIGHT_PLAN.md (Podfazy A2A_P1 do A2A_P3)                                                                                                      
+      • Krok 2.1 (Faza A2A_P1): Silnik A2AProtocolAdapter (podpisy kryptograficzne kopert wiadomości A2AAgentMessage, tokeny nonce anty-replay) oraz KeycloakAuthGateway (weryfikacja
+      JWT OIDC, ról RBAC i tokenów capability).                                                                                                                                      
+      • Krok 2.2 (Faza A2A_P2): Rozproszony RedisDistributedRateLimiter (algorytm Token Bucket) oraz IngestionPIIScrubber (maskowanie kluczy API, JWT, e-maili przed zapisem do baz  
+      wektorowych Qdrant/pgvector).                                                                                                                                                  
+      • Krok 2.3 (Faza A2A_P3): Telemetria OTelMeshTelemetry (ślady OTel i metryki Prometheus) oraz profil ThinDeviceRuntime dla urządzeń o słabych zasobach (RAM < 2GB, mobile,     
+      Windows laptop).                                                                                                                                                               
+  
+  4. docs/RAE_PORTAL_UI_IMPROVEMENT_PLAN.md (Część 1 & Moduł Inspekcji)
+      • Krok 3.1 (Command Center Dashboard): Wdrożenie głównego panelu nadzorczego RAE-Supervisor (stan kontenerów Docker, trasowanie intencji Autonomy Kernel, logi żywe).          
+      • Krok 3.2 (Dedykowane Widoki Modułów):
+          • RAE-Quality Tribunal Inspector: Widok głosowań sędziów, raportów linterów i przyczyny odrzuceń kodu.
+          • RAE-Lab Kaizen Observatory: Wykresy długu technicznego (Lean Score) i wag MAB.
+          • RAE-Memory Subconscious Explorer: Wizualizacja 4 warstw pamięci (Episodic, Semantic, Working, Reflective) i Circuit Breakers.
+          • RAE-Phoenix & RAE-CLR Inspector: Podgląd automatycznych napraw kodu i badań R&D.                                                                                         
+      • Krok 3.3 (Project & Phase Deep-Dive Inspector): Wdrożenie silnika ProjectPhaseAnalyzer umożliwiającego filtrowanie i analizę dowolnego projektu (np. RAE-Suite, ScreenWatcher,
+      Billboard Splitter) oraz konkretnych faz (np. A2A_P1, PART2_ETAP1), łącząc koszty tokenowe, logi z pamięci i kwity sędziowskie.
+          
+  ──────
+  ## ── FAZA 4: Globalna Wyszukiwarka Multimodalna i Human-in-the-Loop Approval (Advanced Portal Features)
+  
+  │ Cel: Pełne możliwości wyszukiwania zdarzeń i audytów oraz bezpieczna autoryzacja przez człowieka akcji wysokiego ryzyka.
+  
+  5. docs/RAE_PORTAL_UI_IMPROVEMENT_PLAN.md (Część 2 & 3) & docs/specs/RAE_UNIFIED_UI_UX_SPECIFICATION.md
+      • Krok 4.1 (RAE Global Search Engine): Wdrożenie hybrydowej wyszukiwarki (Full-Text + Vector Semantic Search) przeszukującej RAE_EXECUTION_LEDGER.jsonl, faktów pamięciowych i 
+      transakcji outbox z filtrami po module, statusie ryzyka (R0 do R6), zakresie dat i identyfikatorach transakcji (trace_id/tenant_id).
+      • Krok 4.2 (HITL Approval Center & ISO Compliance): Dedykowany interfejs zatwierdzania akcji krytycznych przez człowieka (Human-in-the-Loop) oraz gwarancja anonimizacji PII w 
+      widokach portalu zgodnie z normami ISO 27001 / ISO 42001.
+  
+  ──────
+  ## 🗺️ Podsumowanie Ścieżki Zależności
+  
+    graph TD
+        Phase1["FAZA 1: Core & Security Baseline<br/>(detailed_implementation_plan.md, ADR-001)"] --> Phase2["FAZA 2: Mesh & Auth
+  Infrastructure<br/>(RAE_SUITE_A2A_KEYCLOAK_LIGHTWEIGHT_PLAN.md)"]
+        Phase2 --> Phase3["FAZA 3: RAE-PORTAL Core & Project Inspector<br/>(RAE_PORTAL_UI_IMPROVEMENT_PLAN.md - Widoki & Inspector)"]
+        Phase3 --> Phase4["FAZA 4: Global Search & HITL Approval<br/>(RAE_PORTAL_UI_IMPROVEMENT_PLAN.md - Search & ISO)"]
+            
+  Taki porządek wdrażania gwarantuje, że interfejs użytkownika w Fazie 3 i 4 od początku odwołuje się do stabilnych, utwardzonych kryptograficznie API i logów audytowych
+  przygotowanych w Fazach 1 i 2.
+

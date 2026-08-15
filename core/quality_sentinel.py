@@ -59,24 +59,25 @@ class QualitySentinel:
 
 
         # Determine Final Status
-        status = QualityStatus.ACCEPT
+        status = QualityStatus.APPROVED
         if not integrity_passed:
             status = QualityStatus.QUARANTINE
             logger.error(f"quality_violation_test_integrity: {violations}")
         elif constitutional_violations > 0:
-            status = QualityStatus.REJECT
+            status = QualityStatus.REJECTED
             logger.warning(f"quality_violation_constitutional: {critique_details}")
         elif coverage_regression:
-            status = QualityStatus.REJECT
+            status = QualityStatus.REJECTED
             logger.warning(f"quality_violation_coverage_drift: before={cov_before}, after={cov_after}")
         elif critical_vulns > 0:
-            status = QualityStatus.REJECT
+            status = QualityStatus.REJECTED
             logger.error(f"quality_violation_vulnerabilities count={critical_vulns}")
         elif not metrics.get("tests_passed", False):
-            status = QualityStatus.REJECT
+            status = QualityStatus.REJECTED
             logger.warning("quality_violation_tests_failed")
 
         result = QualityGateResult(
+            id=f"gate-{uuid.uuid4()}",
             status=status,
             existing_tests_passed=metrics.get("tests_passed", False),
             coverage_before=cov_before,
@@ -98,8 +99,24 @@ class QualitySentinel:
         """
         import ast
         violations = []
+
+        # Clean git diff formatting if present
+        clean_lines = []
+        for line in patch_code.splitlines():
+            if line.startswith("@@") or line.startswith("---") or line.startswith("+++") or line.startswith("diff "):
+                continue
+            if line.startswith("+ "):
+                clean_lines.append(line[2:])
+            elif line.startswith("+"):
+                clean_lines.append(line[1:])
+            elif line.startswith("-"):
+                continue
+            else:
+                clean_lines.append(line)
+        cleaned_code = "\n".join(clean_lines)
+
         try:
-            tree = ast.parse(patch_code)
+            tree = ast.parse(cleaned_code)
             for node in ast.walk(tree):
                 # Check for imports
                 if isinstance(node, ast.Import):
