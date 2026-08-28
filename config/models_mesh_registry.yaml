@@ -101,25 +101,48 @@ models:
     supports_tools: true
     assigned_node: "local_laptop"
 
-  # Local Hardware Models (RTX 5000 / RTX 4080)
-  "local/deepseek-r1-distill":
-    model_name: "local/deepseek-r1-distill"
-    provider: "local"
-    category: "local_guard"
+  # Local Hardware Models (Laptop GPU / Node 1 RTX 4080)
+  "local/bielik-11b":
+    model_name: "SpeakLeash/bielik-11b-v3.0-instruct:Q5_K_M"
+    provider: "ollama"
+    category: "local_polish_legal"
     cost_input_1k: 0.0
     cost_output_1k: 0.0
-    avg_latency_ms: 220.0
-    quality_score: 0.84
+    avg_latency_ms: 180.0
+    quality_score: 0.92
+    supports_tools: true
+    assigned_node: "node1_lumina"
+
+  "local/qwen-3.5-9b":
+    model_name: "qwen3.5:9b"
+    provider: "ollama"
+    category: "local_fast_general"
+    cost_input_1k: 0.0
+    cost_output_1k: 0.0
+    avg_latency_ms: 120.0
+    quality_score: 0.89
     supports_tools: true
     assigned_node: "local_laptop"
 
-  "node1/qwen-2.5-coder-32b":
-    model_name: "node1/qwen-2.5-coder-32b"
-    provider: "local_mesh"
-    category: "local_mesh_heavy"
+  "local/deepseek-r1-8b":
+    model_name: "deepseek-r1:8b"
+    provider: "ollama"
+    category: "local_reasoning_audit"
     cost_input_1k: 0.0
     cost_output_1k: 0.0
-    avg_latency_ms: 190.0
-    quality_score: 0.91
+    avg_latency_ms: 220.0
+    quality_score: 0.94
     supports_tools: true
     assigned_node: "node1_lumina"
+
+  "local/gemma4-12b":
+    model_name: "gemma4:12b"
+    provider: "ollama"
+    category: "local_analysis"
+    cost_input_1k: 0.0
+    cost_output_1k: 0.0
+    avg_latency_ms: 210.0
+    quality_score: 0.90
+    supports_tools: true
+    assigned_node: "node1_lumina"
+

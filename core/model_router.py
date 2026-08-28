@@ -115,19 +115,47 @@ class ModelRouter:
             max_risk_class=RiskClass.R6,
         )
 
-        # Local Node 3 Models (Piotrek)
-        self.registry["llama-3.1-8b"] = ModelProfile(
-            model_name="llama-3.1-8b",
-            context_window=128000,
-            provider="ollama/piotrek",
+        # Local Models (Node 1 Lumina RTX 4080 & Laptop GPU)
+        self.registry["SpeakLeash/bielik-11b-v3.0-instruct:Q5_K_M"] = ModelProfile(
+            model_name="SpeakLeash/bielik-11b-v3.0-instruct:Q5_K_M",
+            context_window=32768,
+            provider="ollama",
             is_local=True,
             cost_input_1k=0.0,
             cost_output_1k=0.0,
-            quantiles=QuantileMetrics(p50_ms=350.0, p95_ms=800.0, p99_ms=1200.0),
-            quality_score=0.75,
+            quantiles=QuantileMetrics(p50_ms=180.0, p95_ms=450.0, p99_ms=800.0),
+            quality_score=0.92,
             supports_json_schema=True,
             supports_tools=True,
-            max_risk_class=RiskClass.R2,
+            max_risk_class=RiskClass.R4,
+        )
+
+        self.registry["qwen3.5:9b"] = ModelProfile(
+            model_name="qwen3.5:9b",
+            context_window=32768,
+            provider="ollama",
+            is_local=True,
+            cost_input_1k=0.0,
+            cost_output_1k=0.0,
+            quantiles=QuantileMetrics(p50_ms=120.0, p95_ms=300.0, p99_ms=600.0),
+            quality_score=0.89,
+            supports_json_schema=True,
+            supports_tools=True,
+            max_risk_class=RiskClass.R3,
+        )
+
+        self.registry["deepseek-r1:8b"] = ModelProfile(
+            model_name="deepseek-r1:8b",
+            context_window=64000,
+            provider="ollama",
+            is_local=True,
+            cost_input_1k=0.0,
+            cost_output_1k=0.0,
+            quantiles=QuantileMetrics(p50_ms=220.0, p95_ms=600.0, p99_ms=1200.0),
+            quality_score=0.94,
+            supports_json_schema=True,
+            supports_tools=True,
+            max_risk_class=RiskClass.R5,
         )
 
     def calculate_estimated_cost(self, profile: ModelProfile, input_tokens: int, output_tokens: int) -> float:
