@@ -36,6 +36,10 @@ try:
 except ImportError:
     RAE_Enterprise_Foundation = None
 
+RAE_SUITE_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, ".."))
+if RAE_SUITE_DIR not in sys.path:
+    sys.path.append(RAE_SUITE_DIR)
+
 from core.cluster_manager import default_cluster_manager
 from core.hard_frames_engine import default_hard_frames_engine
 
