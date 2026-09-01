@@ -1,0 +1,152 @@
+# RAE-Suite Layer Triads Configuration (3 Modele na każdą warstwę)
+# Pozwala na natychmiastową podmianę modeli w locie (hot-reload) bez restartu środowiska.
+
+global_settings:
+  consensus_mode: "synthesized_majority"  # majority | unanimous_veto | synthesized
+  auto_reload: true
+  default_timeout_seconds: 90.0
+
+layers:
+  # ============================================================================
+  # WARSTWA 1: ANALIZA, PLANOWANIE I REASONING
+  # ============================================================================
+  planning:
+    description: "Dekompozycja zadania, ocena ryzyk i wyznaczanie kroków realizacji"
+    models:
+      - name: "deepseek/deepseek-r1"
+        provider: "openrouter"
+        role: "deep_reasoning_and_edge_cases"
+        temperature: 0.1
+        weight: 1.0
+
+      - name: "anthropic/claude-3.7-sonnet"
+        provider: "openrouter"
+        role: "systemic_architectural_planning"
+        temperature: 0.2
+        weight: 1.0
+
+      - name: "openai/o3-mini"
+        provider: "openrouter"
+        role: "logical_consistency_and_validation"
+        temperature: 0.1
+        weight: 1.0
+
+  # ============================================================================
+  # WARSTWA 2: ARCHITEKTURA, INTERFEJSY I KONTRAKTY DTO
+  # ============================================================================
+  architecture:
+    description: "Projekt struktur danych, typów nominalnych i niezmienników interfejsów API"
+    models:
+      - name: "anthropic/claude-3.7-sonnet"
+        provider: "openrouter"
+        role: "types_and_domain_invariants"
+        temperature: 0.1
+        weight: 1.2
+
+      - name: "openai/gpt-4o"
+        provider: "openrouter"
+        role: "api_dto_and_backward_compatibility"
+        temperature: 0.2
+        weight: 1.0
+
+      - name: "qwen/qwen-2.5-coder-32b-instruct"
+        provider: "openrouter"
+        role: "clean_architecture_and_modularity"
+        temperature: 0.1
+        weight: 0.8
+
+  # ============================================================================
+  # WARSTWA 3: IMPLEMENTACJA I GENEROWANIE KODU (SURGICAL CODE)
+  # ============================================================================
+  implementation:
+    description: "Generowanie minimalnego, chirurgicznego diffa (1-5 linijek)"
+    models:
+      - name: "anthropic/claude-3.7-sonnet"
+        provider: "openrouter"
+        role: "primary_patch_author"
+        temperature: 0.0
+        weight: 1.2
+
+      - name: "openai/gpt-4o"
+        provider: "openrouter"
+        role: "minimal_diff_and_syntax_polisher"
+        temperature: 0.1
+        weight: 1.0
+
+      - name: "deepseek/deepseek-chat"
+        provider: "openrouter"
+        role: "alternative_patch_candidate"
+        temperature: 0.0
+        weight: 0.8
+
+  # ============================================================================
+  # WARSTWA 4: AUDYT JAKOŚCIOWY, BEZPIECZEŃSTWO I REGRESJE
+  # ============================================================================
+  quality_audit:
+    description: "Weryfikacja AST, deadlocków, wyścigów danych i braku regresji"
+    models:
+      - name: "deepseek/deepseek-r1"
+        provider: "openrouter"
+        role: "concurrency_deadlocks_and_memory_leaks"
+        temperature: 0.1
+        weight: 1.5  # Prawo weta przy problemach współbieżności
+
+      - name: "anthropic/claude-3.5-sonnet"
+        provider: "openrouter"
+        role: "zero_drift_and_test_integrity_auditor"
+        temperature: 0.1
+        weight: 1.0
+
+      - name: "meta-llama/llama-3.3-70b-instruct"
+        provider: "openrouter"
+        role: "security_sast_and_input_validation"
+        temperature: 0.1
+        weight: 1.0
+
+  # ============================================================================
+  # WARSTWA 5: BAZY DANYCH, CONCURRENCY I WYDAJNOŚĆ (PERFORMANCE SLA)
+  # ============================================================================
+  performance_db:
+    description: "Optymalizacja SQL, PgBouncer, kompresja blobów i minimalizacja latencji"
+    models:
+      - name: "deepseek/deepseek-r1"
+        provider: "openrouter"
+        role: "transaction_isolation_and_lock_contention"
+        temperature: 0.1
+        weight: 1.2
+
+      - name: "openai/gpt-4o"
+        provider: "openrouter"
+        role: "query_optimizer_and_index_tuner"
+        temperature: 0.1
+        weight: 1.0
+
+      - name: "meta-llama/llama-3.3-70b-instruct"
+        provider: "openrouter"
+        role: "caching_and_throughput_specialist"
+        temperature: 0.1
+        weight: 1.0
+
+  # ============================================================================
+  # WARSTWA 6: ZERO-COST LOCAL GPU TRIAD (NODE 1 LUMINA)
+  # ============================================================================
+  local_gpu_triad:
+    description: "Darmowa, superszybka triada oparta o dedykowane GPU RTX 4080 na Node1"
+    models:
+      - name: "deepseek-r1:8b"
+        provider: "node1_lumina"
+        role: "local_reasoning_and_deadlocks"
+        temperature: 0.1
+        weight: 1.2
+
+      - name: "SpeakLeash/bielik-11b-v3.0-instruct:Q5_K_M"
+        provider: "node1_lumina"
+        role: "polish_language_and_compliance"
+        temperature: 0.2
+        weight: 1.0
+
+      - name: "qwen3.5:9b"
+        provider: "node1_lumina"
+        role: "fast_code_syntax_and_tools"
+        temperature: 0.1
+        weight: 1.0
