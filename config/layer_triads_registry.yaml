@@ -1,152 +1,154 @@
-# RAE-Suite Layer Triads Configuration (3 Modele na każdą warstwę)
-# Pozwala na natychmiastową podmianę modeli w locie (hot-reload) bez restartu środowiska.
+# RAE-Suite 3-Tier Model Hierarchy (9 Modele + Local GPU)
+# Dokładnie 3 stopnie inżynierii programistycznej zgodnie ze specyfikacją models-for-rae.md
 
 global_settings:
   consensus_mode: "synthesized_majority"  # majority | unanimous_veto | synthesized
   auto_reload: true
-  default_timeout_seconds: 90.0
+  default_timeout_seconds: 120.0
 
-layers:
+tiers:
   # ============================================================================
-  # WARSTWA 1: ANALIZA, PLANOWANIE I REASONING
+  # STOPIEŃ I — GENERATE (Tanie wykonanie, jakość/cena, 3 niezależne codery)
   # ============================================================================
-  planning:
-    description: "Dekompozycja zadania, ocena ryzyk i wyznaczanie kroków realizacji"
+  tier1_generate:
+    name: "tier1_generate"
+    title: "Stopień I — Generate (Tanie Wykonanie)"
+    description: "Tanie i szybkie generowanie kodu, wariantów rozwiązań i wstępnych diffów"
     models:
-      - name: "deepseek/deepseek-r1"
+      - name: "z-ai/glm-5.3-flash"
         provider: "openrouter"
-        role: "deep_reasoning_and_edge_cases"
+        role: "primary_coder"
+        cost_input_per_m: 0.075
+        cost_output_per_m: 0.25
         temperature: 0.1
         weight: 1.0
 
-      - name: "anthropic/claude-3.7-sonnet"
+      - name: "deepseek/deepseek-v4-flash"
         provider: "openrouter"
-        role: "systemic_architectural_planning"
-        temperature: 0.2
+        role: "secondary_independent_coder"
+        cost_input_per_m: 0.05
+        cost_output_per_m: 0.16
+        temperature: 0.1
         weight: 1.0
 
-      - name: "openai/o3-mini"
+      - name: "xiaomi/mimo-v2.5"
         provider: "openrouter"
-        role: "logical_consistency_and_validation"
+        role: "alternative_solution_coder"
+        cost_input_per_m: 0.119
+        cost_output_per_m: 0.238
         temperature: 0.1
         weight: 1.0
 
   # ============================================================================
-  # WARSTWA 2: ARCHITEKTURA, INTERFEJSY I KONTRAKTY DTO
+  # STOPIEŃ II — REVIEW / REPAIR (Właściwa analiza, szukanie błędów, naprawa i architektura)
   # ============================================================================
-  architecture:
-    description: "Projekt struktur danych, typów nominalnych i niezmienników interfejsów API"
+  tier2_review_repair:
+    name: "tier2_review_repair"
+    title: "Stopień II — Review & Repair (Analiza i Naprawa)"
+    description: "Głębokie review, wykrywanie luk współbieżności, naprawa patcha i refaktoryzacje"
     models:
-      - name: "anthropic/claude-3.7-sonnet"
+      - name: "deepseek/deepseek-v4-pro-0813"
         provider: "openrouter"
-        role: "types_and_domain_invariants"
+        role: "strong_reviewer_and_fixer"
+        cost_input_per_m: 0.66
+        cost_output_per_m: 1.98
         temperature: 0.1
         weight: 1.2
 
-      - name: "openai/gpt-4o"
+      - name: "z-ai/glm-5.3"
         provider: "openrouter"
-        role: "api_dto_and_backward_compatibility"
-        temperature: 0.2
+        role: "architecture_and_deep_refactoring"
+        cost_input_per_m: 1.17
+        cost_output_per_m: 3.96
+        temperature: 0.1
         weight: 1.0
 
-      - name: "qwen/qwen-2.5-coder-32b-instruct"
+      - name: "moonshotai/kimi-k2.7-code"
         provider: "openrouter"
-        role: "clean_architecture_and_modularity"
+        role: "long_horizon_coding_agent"
+        cost_input_per_m: 0.66
+        cost_output_per_m: 3.40
         temperature: 0.1
-        weight: 0.8
+        weight: 1.0
 
   # ============================================================================
-  # WARSTWA 3: IMPLEMENTACJA I GENEROWANIE KODU (SURGICAL CODE)
+  # STOPIEŃ III — JUDGE / ARBITRAŻ (Finalny arbitraż, duże repo, trudne błędy i spory)
   # ============================================================================
-  implementation:
-    description: "Generowanie minimalnego, chirurgicznego diffa (1-5 linijek)"
+  tier3_judge:
+    name: "tier3_judge"
+    title: "Stopień III — Judge & Consensus (Finalny Arbitraż)"
+    description: "Finalny arbitraż, rozstrzyganie sporów między modelami, 1M kontekst, governance"
     models:
-      - name: "anthropic/claude-3.7-sonnet"
+      - name: "openai/gpt-5.6-sol"
         provider: "openrouter"
-        role: "primary_patch_author"
-        temperature: 0.0
-        weight: 1.2
-
-      - name: "openai/gpt-4o"
-        provider: "openrouter"
-        role: "minimal_diff_and_syntax_polisher"
-        temperature: 0.1
-        weight: 1.0
-
-      - name: "deepseek/deepseek-chat"
-        provider: "openrouter"
-        role: "alternative_patch_candidate"
-        temperature: 0.0
-        weight: 0.8
-
-  # ============================================================================
-  # WARSTWA 4: AUDYT JAKOŚCIOWY, BEZPIECZEŃSTWO I REGRESJE
-  # ============================================================================
-  quality_audit:
-    description: "Weryfikacja AST, deadlocków, wyścigów danych i braku regresji"
-    models:
-      - name: "deepseek/deepseek-r1"
-        provider: "openrouter"
-        role: "concurrency_deadlocks_and_memory_leaks"
-        temperature: 0.1
-        weight: 1.5  # Prawo weta przy problemach współbieżności
-
-      - name: "anthropic/claude-3.5-sonnet"
-        provider: "openrouter"
-        role: "zero_drift_and_test_integrity_auditor"
-        temperature: 0.1
-        weight: 1.0
-
-      - name: "meta-llama/llama-3.3-70b-instruct"
-        provider: "openrouter"
-        role: "security_sast_and_input_validation"
-        temperature: 0.1
-        weight: 1.0
-
-  # ============================================================================
-  # WARSTWA 5: BAZY DANYCH, CONCURRENCY I WYDAJNOŚĆ (PERFORMANCE SLA)
-  # ============================================================================
-  performance_db:
-    description: "Optymalizacja SQL, PgBouncer, kompresja blobów i minimalizacja latencji"
-    models:
-      - name: "deepseek/deepseek-r1"
-        provider: "openrouter"
-        role: "transaction_isolation_and_lock_contention"
+        role: "final_reviewer_and_complex_terminal_ops"
+        cost_input_per_m: 2.00
+        cost_output_per_m: 10.00
         temperature: 0.1
         weight: 1.2
 
-      - name: "openai/gpt-4o"
+      - name: "moonshotai/kimi-k3"
         provider: "openrouter"
-        role: "query_optimizer_and_index_tuner"
+        role: "large_repo_long_horizon_judge"
+        cost_input_per_m: 2.55
+        cost_output_per_m: 12.75
         temperature: 0.1
-        weight: 1.0
+        weight: 1.2
 
-      - name: "meta-llama/llama-3.3-70b-instruct"
+      - name: "anthropic/claude-sonnet-5"
         provider: "openrouter"
-        role: "caching_and_throughput_specialist"
+        role: "independent_final_reviewer"
+        cost_input_per_m: 2.00
+        cost_output_per_m: 10.00
         temperature: 0.1
         weight: 1.0
 
   # ============================================================================
-  # WARSTWA 6: ZERO-COST LOCAL GPU TRIAD (NODE 1 LUMINA)
+  # STOPIEŃ 0 — ZERO-COST LOCAL GPU (NODE 1 LUMINA RTX 4080)
   # ============================================================================
   local_gpu_triad:
-    description: "Darmowa, superszybka triada oparta o dedykowane GPU RTX 4080 na Node1"
+    name: "local_gpu_triad"
+    title: "Stopień 0 — Zero-Cost Local GPU (Node 1 Lumina)"
+    description: "Darmowa, lokalna triada na GPU Node 1 ($0.00) dla codziennych zadań i testów"
     models:
       - name: "deepseek-r1:8b"
         provider: "node1_lumina"
         role: "local_reasoning_and_deadlocks"
+        cost_input_per_m: 0.0
+        cost_output_per_m: 0.0
         temperature: 0.1
         weight: 1.2
 
       - name: "SpeakLeash/bielik-11b-v3.0-instruct:Q5_K_M"
         provider: "node1_lumina"
         role: "polish_language_and_compliance"
+        cost_input_per_m: 0.0
+        cost_output_per_m: 0.0
         temperature: 0.2
         weight: 1.0
 
       - name: "qwen3.5:9b"
         provider: "node1_lumina"
         role: "fast_code_syntax_and_tools"
+        cost_input_per_m: 0.0
+        cost_output_per_m: 0.0
         temperature: 0.1
         weight: 1.0
+
+# Aliases for convenience and backward compatibility
+layers:
+  tier1: tier1_generate
+  tier1_generate: tier1_generate
+  tier2: tier2_review_repair
+  tier2_review_repair: tier2_review_repair
+  tier3: tier3_judge
+  tier3_judge: tier3_judge
+  planning: tier1_generate
+  implementation: tier1_generate
+  architecture: tier2_review_repair
+  quality_audit: tier2_review_repair
+  performance_db: tier2_review_repair
+  judge: tier3_judge
+  final_judge: tier3_judge
+  local_gpu: local_gpu_triad
+  local_gpu_triad: local_gpu_triad

@@ -49,10 +49,23 @@ class ExecutionAuditLedger:
     """
     def __init__(
         self,
-        ledger_file_path: str = "/home/grzegorz/cloud/docs/RAE_COST_AND_AUDIT_LEDGER.jsonl",
+        ledger_file_path: Optional[str] = None,
         max_file_size_bytes: int = 10 * 1024 * 1024  # 10 MB rotation threshold
     ):
-        self.ledger_file_path = Path(ledger_file_path)
+        if ledger_file_path:
+            self.ledger_file_path = Path(ledger_file_path)
+        else:
+            env_path = os.getenv("RAE_AUDIT_LEDGER_PATH")
+            if env_path:
+                self.ledger_file_path = Path(env_path)
+            else:
+                # Default relative to RAE-Suite / cloud workspace
+                base_dir = Path(__file__).resolve().parent.parent
+                if (base_dir.parent / "docs").exists():
+                    self.ledger_file_path = base_dir.parent / "docs" / "RAE_COST_AND_AUDIT_LEDGER.jsonl"
+                else:
+                    self.ledger_file_path = base_dir / "docs" / "RAE_COST_AND_AUDIT_LEDGER.jsonl"
+
         self.max_file_size_bytes = max_file_size_bytes
         self.receipts: List[AuditCostReceipt] = []
         self._last_hash = "0" * 64
